@@ -48,35 +48,26 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
 
 * **Tujuan Sprint:** Menyiapkan struktur proyek Next.js App Router, konfigurasi TypeScript Strict, pustaka komponen Shadcn UI, serta skema basis data PostgreSQL Drizzle ORM tanpa kolom `tenant_id`.
 * **Estimasi:** Fondasi Arsitektur
+* **Status:** ✅ **SELESAI (Committed & Pushed to GitHub)**
 * **Daftar Tugas:**
-  - [ ] **Task 1.1: Inisialisasi Proyek Next.js & TypeScript Strict**
+  - [x] **Task 1.1: Inisialisasi Proyek Next.js & TypeScript Strict**
     - Berkas: `package.json`, `tsconfig.json`, `next.config.mjs`, `tailwind.config.ts`, `.env.example`
-    - Aturan: Larangan penggunaan tipe `any`, path alias `@/*` mengarah ke `./src/*`.
-    - Script verifikasi: `npm run build` & `npm run lint`.
-  - [ ] **Task 1.2: Konfigurasi Tailwind CSS & Shadcn UI Tokens (Tema Sprig)**
+    - Commit: `68a4845` (`feat(setup): initialize Next.js app with TypeScript strict and environment config (Task 1.1)`)
+  - [x] **Task 1.2: Konfigurasi Tailwind CSS & Shadcn UI Tokens (Tema Sprig)**
     - Berkas: `src/components/ui/*`, `src/lib/utils.ts`, `components.json`, `src/app/globals.css`
-    - Komponen awal: `Button`, `Input`, `Card`, `Badge`, `Table`, `Dialog`, `Sheet`, `DropdownMenu`, `Skeleton`, `Sonner (Toaster)`, `Command`.
-    - Token visual: Palet netral hangat (`hsl(60, 5%, 96%)` / warm neutral Sprig).
-  - [ ] **Task 1.3: Konfigurasi Koneksi PostgreSQL & Drizzle ORM**
+    - Commit: `36afcaa` (`feat(ui): configure Tailwind CSS, Sprig theme tokens, and Shadcn UI primitives (Task 1.2)`)
+  - [x] **Task 1.3: Konfigurasi Koneksi PostgreSQL & Drizzle ORM**
     - Berkas: `drizzle.config.ts`, `src/db/index.ts`
-    - Setup koneksi database pool berbasis `postgres` / `@neondatabase/serverless` dengan type-safe schema mapping.
-  - [ ] **Task 1.4: Implementasi Skema Basis Data Inti (Drizzle Schemas)**
-    - Berkas:
-      - `src/db/schema/users.ts`: Tabel `users` (Enum: `OWNER`, `PLANNER`, `CREW`).
-      - `src/db/schema/supporting-phase2.ts`: Tabel `service_packages` (Katalog SOW).
-      - `src/db/schema/projects.ts`: Tabel `projects` (memuat `public_token` dan `contract_amount`).
-      - `src/db/schema/project-crews.ts`: Tabel `project_crews` dengan constraint anti-bentrok.
-      - `src/db/schema/vendors.ts`: Tabel `vendors` & `project_vendors`.
-      - `src/db/schema/rundowns.ts`: Tabel `event_templates`, `template_rundown_items`, `project_rundowns`.
-      - `src/db/schema/wedding-parties.ts`: Tabel `wedding_parties` (Keluarga & VIP).
-      - `src/db/schema/index.ts`: Ekspor seluruh relasi dan entitas skema.
-  - [ ] **Task 1.5: Enforce Constraint Kritis Basis Data & Database Migration**
-    - Constraint 1: `UNIQUE("user_id", "event_date")` pada `project_crews`.
-    - Constraint 2: `UNIQUE("public_token")` pada `projects`.
-    - Perintah eksekusi: `npx drizzle-kit generate` dan `npx drizzle-kit migrate`.
-  - [ ] **Task 1.6: Seeding Data Awal (Akun & Template Adat/Agama)**
+    - Commit: `acf23f1` (`feat(db): setup PostgreSQL connection and Drizzle ORM configuration (Task 1.3)`)
+  - [x] **Task 1.4: Implementasi Skema Basis Data Inti (Drizzle Schemas)**
+    - Berkas: `src/db/schema/*`
+    - Commit: `909a4be` (`feat(schema): implement relational Drizzle database schema definitions (Task 1.4)`)
+  - [x] **Task 1.5: Enforce Constraint Kritis Basis Data & Database Migration**
+    - Berkas: `drizzle/0000_slow_mercury.sql`, `drizzle/meta/*`
+    - Commit: `115a030` (`feat(migration): generate initial SQL migrations with anti-conflict and token constraints (Task 1.5)`)
+  - [x] **Task 1.6: Seeding Data Awal (Akun & Template Adat/Agama)**
     - Berkas: `src/db/seed.ts`
-    - Data: Akun default Dimas (Owner), Sarah (Planner), Rian (Crew); Paket Day-of & Full Planning; Template Akad Sunda & Holy Matrimony.
+    - Commit: `d9cb5b2` (`feat(seed): add database seed script for default accounts and ceremony templates (Task 1.6)`)
 * **Definition of Done (DoD) Sprint 1:**
   1. Seluruh tabel relasional terbuat di PostgreSQL tanpa kegagalan migrasi.
   2. Data seed masuk sempurna (users, packages, templates).
