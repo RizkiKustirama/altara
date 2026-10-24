@@ -1,0 +1,325 @@
+# Rencana Implementasi Bertahap (Master Phased Implementation Plan)
+## Sistem Manajemen Operasional & Finansial Wedding Organizer (Single-Tenant)
+
+Dokumen ini merupakan panduan eksekusi teknis tingkat lanjut (*step-by-step execution roadmap*) untuk membangun sistem operasional Wedding Organizer internal berdasarkan spesifikasi pada [requirements.md](file:///D:/PROJECT/WO/requirements.md), [architecture.md](file:///D:/PROJECT/WO/architecture.md), [schema.md](file:///D:/PROJECT/WO/schema.md), [workflows.md](file:///D:/PROJECT/WO/workflows.md), [rbac-security.md](file:///D:/PROJECT/WO/rbac-security.md), [api-contracts.md](file:///D:/PROJECT/WO/api-contracts.md), [ui-specs.md](file:///D:/PROJECT/WO/ui-specs.md), dan [.agyrules](file:///D:/PROJECT/WO/.agyrules).
+
+---
+
+## 1. Peta Ketergantungan Antar-Fase & Sprint
+
+```mermaid
+flowchart TD
+    subgraph Fase1["FASE 1: CORE PLANNING ENGINE & ANTI-CONFLICT (MVP - P0)"]
+        S1["Sprint 1: Fondasi, Tooling & Skema Drizzle DB"]
+        S2["Sprint 2: Autentikasi Internal & RBAC Guard"]
+        S3["Sprint 3: Proyek, Skuad & Mesin Anti-Bentrok"]
+        S4["Sprint 4: Vendor Rekanan & Pintas WhatsApp (wa.me)"]
+        S5["Sprint 5: Template Adat, Rundown & Propagasi Waktu"]
+        S6["Sprint 6: Direktori Keluarga & PDF Guidebook TM"]
+        
+        S1 --> S2 --> S3
+        S1 --> S4
+        S3 --> S5 --> S6
+        S4 --> S6
+    end
+
+    subgraph Fase2["FASE 2: FIELD MOBILITY, CLIENT PORTAL & FINANCIAL AUTOMATION (P1)"]
+        S7["Sprint 7: Tier 1 Bujet Operasional Acara"]
+        S8["Sprint 8: Mobile PWA Field Mode & Logistik Sakral"]
+        S9["Sprint 9: Portal Pengantin Publik via Token URL"]
+        S10["Sprint 10: Tier 2 Dapur Finansial & Honor Kru (Owner Only)"]
+        
+        S3 & S4 --> S7
+        S3 & S5 --> S8
+        S3 & S4 --> S9
+        S3 & S7 --> S10
+    end
+```
+
+---
+
+## FASE 1: Core Planning Engine & Anti-Conflict (MVP - P0)
+
+Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Planner) untuk mendaftarkan proyek pernikahan, mengalokasikan skuad kru tanpa risiko bentrok jadwal, mengelola vendor rekanan, menyusun rundown dengan template adat, serta mengekspor Buku Panduan TM (PDF).
+
+---
+
+### Sprint 1: Setup Fondasi, Tooling & Basis Data Drizzle (Single-Tenant)
+
+* **Tujuan Sprint:** Menyiapkan struktur proyek Next.js App Router, konfigurasi TypeScript Strict, pustaka komponen Shadcn UI, serta skema basis data PostgreSQL Drizzle ORM tanpa kolom `tenant_id`.
+* **Estimasi:** Fondasi Arsitektur
+* **Daftar Tugas:**
+  - [ ] **Task 1.1: Inisialisasi Proyek Next.js & TypeScript Strict**
+    - Berkas: `package.json`, `tsconfig.json`, `next.config.mjs`, `tailwind.config.ts`, `.env.example`
+    - Aturan: Larangan penggunaan tipe `any`, path alias `@/*` mengarah ke `./src/*`.
+    - Script verifikasi: `npm run build` & `npm run lint`.
+  - [ ] **Task 1.2: Konfigurasi Tailwind CSS & Shadcn UI Tokens (Tema Sprig)**
+    - Berkas: `src/components/ui/*`, `src/lib/utils.ts`, `components.json`, `src/app/globals.css`
+    - Komponen awal: `Button`, `Input`, `Card`, `Badge`, `Table`, `Dialog`, `Sheet`, `DropdownMenu`, `Skeleton`, `Sonner (Toaster)`, `Command`.
+    - Token visual: Palet netral hangat (`hsl(60, 5%, 96%)` / warm neutral Sprig).
+  - [ ] **Task 1.3: Konfigurasi Koneksi PostgreSQL & Drizzle ORM**
+    - Berkas: `drizzle.config.ts`, `src/db/index.ts`
+    - Setup koneksi database pool berbasis `postgres` / `@neondatabase/serverless` dengan type-safe schema mapping.
+  - [ ] **Task 1.4: Implementasi Skema Basis Data Inti (Drizzle Schemas)**
+    - Berkas:
+      - `src/db/schema/users.ts`: Tabel `users` (Enum: `OWNER`, `PLANNER`, `CREW`).
+      - `src/db/schema/supporting-phase2.ts`: Tabel `service_packages` (Katalog SOW).
+      - `src/db/schema/projects.ts`: Tabel `projects` (memuat `public_token` dan `contract_amount`).
+      - `src/db/schema/project-crews.ts`: Tabel `project_crews` dengan constraint anti-bentrok.
+      - `src/db/schema/vendors.ts`: Tabel `vendors` & `project_vendors`.
+      - `src/db/schema/rundowns.ts`: Tabel `event_templates`, `template_rundown_items`, `project_rundowns`.
+      - `src/db/schema/wedding-parties.ts`: Tabel `wedding_parties` (Keluarga & VIP).
+      - `src/db/schema/index.ts`: Ekspor seluruh relasi dan entitas skema.
+  - [ ] **Task 1.5: Enforce Constraint Kritis Basis Data & Database Migration**
+    - Constraint 1: `UNIQUE("user_id", "event_date")` pada `project_crews`.
+    - Constraint 2: `UNIQUE("public_token")` pada `projects`.
+    - Perintah eksekusi: `npx drizzle-kit generate` dan `npx drizzle-kit migrate`.
+  - [ ] **Task 1.6: Seeding Data Awal (Akun & Template Adat/Agama)**
+    - Berkas: `src/db/seed.ts`
+    - Data: Akun default Dimas (Owner), Sarah (Planner), Rian (Crew); Paket Day-of & Full Planning; Template Akad Sunda & Holy Matrimony.
+* **Definition of Done (DoD) Sprint 1:**
+  1. Seluruh tabel relasional terbuat di PostgreSQL tanpa kegagalan migrasi.
+  2. Data seed masuk sempurna (users, packages, templates).
+  3. Perintah `npx tsc --noEmit` bersih tanpa error tipe data.
+
+---
+
+### Sprint 2: Autentikasi Internal, Sesi Cookie & Guard Otorisasi
+
+* **Tujuan Sprint:** Mengamankan sistem dengan modul login internal kantor, sesi cookie aman (`HttpOnly`), middleware rute, dan guard otorisasi Server Actions.
+* **Daftar Tugas:**
+  - [ ] **Task 2.1: Standarisasi Format Respons (*Envelope Pattern*)**
+    - Berkas: `src/types/action-response.ts`, `src/types/auth.ts`
+    - Tipe: `ActionResponse<T>`, `ActionError`, dan enum `ErrorCode` (`UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT_SCHEDULE`, `VALIDATION_ERROR`, `BAD_REQUEST`).
+  - [ ] **Task 2.2: Implementasi Modul Sesi Autentikasi (Password Hashing & Cookie)**
+    - Berkas: `src/lib/auth.ts`, `src/actions/auth-actions.ts`, `src/schemas/auth-schema.ts`
+    - Mekanisme: Password hashing menggunakan `bcryptjs`/`argon2`, session cookie beratribut `HttpOnly; Secure; SameSite=Lax`.
+  - [ ] **Task 2.3: Helper Guard Otorisasi Server Actions**
+    - Berkas: `src/lib/auth-guard.ts`
+    - Fungsi: `assertRole(session, allowedRoles)` dan `assertProjectAccess(session, projectId)`.
+  - [ ] **Task 2.4: Middleware Proteksi Rute Next.js**
+    - Berkas: `src/middleware.ts`
+    - Aturan rute: Rute `(owner-only)/*` diblokir total jika bukan role `OWNER`; Rute `(admin)/*` wajib sesi aktif `OWNER` atau `PLANNER`; Rute publik `/portal/*` dilepas tanpa autentikasi.
+  - [ ] **Task 2.5: UI Halaman Login Internal**
+    - Berkas: `src/app/(auth)/login/page.tsx`, `src/components/auth/login-form.tsx`
+    - Fitur: Form login Shadcn UI dengan validasi Zod klien, tombol submit berstatus loading, dan feedback toast error.
+* **Definition of Done (DoD) Sprint 2:**
+  1. Pengguna dapat login dengan akun Dimas, Sarah, dan Rian lalu diarahkan ke dashboard masing-masing.
+  2. Akses ke URL `(owner-only)` oleh Sarah atau Rian otomatis terlempar ke 403 atau dialihkan (*redirect*).
+  3. Server Actions mengembalikan `ActionError` berformat JSON standar saat unauthenticated.
+
+---
+
+### Sprint 3: Manajemen Proyek, Skuad & Mesin Anti-Bentrok Penjadwalan Kru
+
+* **Tujuan Sprint:** Menyediakan fungsionalitas pembuatan proyek pernikahan, pembuatan public token instan, serta mesin validasi anti-bentrok jadwal kru.
+* **Daftar Tugas:**
+  - [ ] **Task 3.1: Skema Validasi Zod Proyek & Penugasan Kru**
+    - Berkas: `src/schemas/project-schema.ts`, `src/schemas/crew-schema.ts`
+    - Skema: `CreateProjectSchema`, `UpdateProjectSchema`, `AssignCrewSchema`.
+  - [ ] **Task 3.2: Mesin Validasi Anti-Bentrok Kru (*Anti-Collision Engine*)**
+    - Berkas: `src/services/crew-service.ts`
+    - Fungsi: `assignCrewToProject(input)` memeriksa `project_crews` pada `event_date` yang sama. Jika ada bentrok, kembalikan `ActionError` berkode `CONFLICT_SCHEDULE` dengan nama proyek yang saling bertabrakan.
+  - [ ] **Task 3.3: Server Actions Proyek & Kru Skuad**
+    - Berkas: `src/actions/project-actions.ts`, `src/actions/crew-actions.ts`
+    - Fungsi: `createProjectAction` (generate `public_token` unik via `nanoid`), `assignCrewAction`, `removeCrewAction`, `getProjectOverviewAction`.
+  - [ ] **Task 3.4: Desktop UI: Multi-Event Operational Calendar Grid**
+    - Berkas: `src/app/(admin)/dashboard/page.tsx`, `src/components/admin/calendar-grid.tsx`, `src/components/admin/live-time-marker.tsx`
+    - Tampilan: Grid kalender Jumat-Minggu memantau 3-6 pernikahan, dilengkapi kartu blok proyek dan garis aksen merah muda (*Live Now Line*).
+  - [ ] **Task 3.5: Desktop UI: Slide-Over Alokasi Skuad Kru**
+    - Berkas: `src/app/(admin)/projects/[projectId]/squad/page.tsx`, `src/components/admin/crew-assignment-drawer.tsx`
+    - Fitur: Drawer geser kanan (`Sheet`) memilih staf internal/freelancer, dropdown role penugasan (Lead, LO Bride, Runner), dan penanganan feedback toast `CONFLICT_SCHEDULE`.
+* **Definition of Done (DoD) Sprint 3:**
+  1. Pembuatan proyek baru otomatis men-generate `public_token` unik.
+  2. Saat Rian ditugaskan di Pernikahan A pada 24 Oktober 2026, lalu dicoba ditugaskan di Pernikahan B pada tanggal yang sama, sistem langsung memblokir dan menampilkan toast: *"Rian sudah terjadwal bertugas di Pernikahan A pada tanggal 2026-10-24"*.
+  3. Database menolak via constraint unik jika query langsung dicoba bypass.
+
+---
+
+### Sprint 4: Vendor Rekanan & Integrasi WhatsApp Quick-Action
+
+* **Tujuan Sprint:** Mengelola direktori master vendor, slotting rekanan ke dalam proyek pengantin, dan integrasi tautan pesan instan WhatsApp otomatis.
+* **Daftar Tugas:**
+  - [ ] **Task 4.1: Helper Sanitasi Nomor & Generator Deep-Link WhatsApp**
+    - Berkas: `src/lib/whatsapp.ts`
+    - Fungsi: `sanitizeIndonesianPhone` (konversi `08...`/`+628...` ke `628...`) dan `generateVendorTmWhatsappUrl(draft)` dengan `encodeURIComponent`.
+  - [ ] **Task 4.2: Skema Zod & Service Vendor**
+    - Berkas: `src/schemas/vendor-schema.ts`, `src/services/vendor-service.ts`
+    - Fitur: CRUD master vendor, slotting vendor ke `project_vendors`, filter kategori (MUA, Dekorasi, Katering, Foto, Sound, dll.).
+  - [ ] **Task 4.3: Server Actions Vendor & Slotting Acara**
+    - Berkas: `src/actions/vendor-actions.ts`
+    - Fungsi: `createVendorAction`, `slotVendorToProjectAction`, `updateVendorStatusAction`.
+  - [ ] **Task 4.4: Desktop UI: Master Katalog Vendor Rekanan**
+    - Berkas: `src/app/(admin)/vendors/page.tsx`, `src/components/admin/vendor-form-dialog.tsx`
+    - Tampilan: Tabel master vendor, filter kategori, badge status keaktifan, dan tombol kontak WhatsApp.
+  - [ ] **Task 4.5: Desktop UI: Slide-Over Slotting Vendor Proyek**
+    - Berkas: `src/app/(admin)/projects/[projectId]/vendors/page.tsx`, `src/components/admin/vendor-slot-card.tsx`
+    - Fitur: Pemetaan slot vendor per kebutuhan acara pengantin, tombol 1-klik buka WhatsApp untuk undangan Technical Meeting (TM).
+* **Definition of Done (DoD) Sprint 4:**
+  1. Sarah dapat menambahkan vendor ke slot proyek pernikahan pengantin.
+  2. Menekan tombol WhatsApp langsung membuka tautan `https://wa.me/628...` dengan draf teks undangan TM yang sudah memuat nama pengantin, tanggal, jam, dan lokasi venue.
+
+---
+
+### Sprint 5: Pustaka Template Prosesi, Rundown Builder & Propagasi Waktu
+
+* **Tujuan Sprint:** Membangun antarmuka penyusunan rundown menit-per-menit (*cue sheet*), pustaka template adat/agama, dan mesin pergeseran waktu berantai.
+* **Daftar Tugas:**
+  - [ ] **Task 5.1: Mesin Propagasi Waktu Berantai (*Time Propagation Engine*)**
+    - Berkas: `src/services/rundown-service.ts`
+    - Algoritma: `propagateRundownTimes(items, initialStartTime)` mengkalkulasi ulang `startTime` dan `endTime` seluruh sesi berikutnya secara otomatis jika ada durasi yang bergeser.
+  - [ ] **Task 5.2: Duplikasi Template Prosesi ke Proyek**
+    - Berkas: `src/services/template-service.ts`
+    - Logika: Menyalin kumpulan `template_rundown_items` ke dalam `project_rundowns` dengan penyesuaian jam awal acara pengantin.
+  - [ ] **Task 5.3: Server Actions Rundown & Template**
+    - Berkas: `src/schemas/rundown-schema.ts`, `src/actions/rundown-actions.ts`
+    - Fungsi: `applyTemplateToProjectAction`, `reorderRundownAction`, `updateRundownItemAction`, `createRundownItemAction`.
+  - [ ] **Task 5.4: Desktop UI: Master Rundown Builder (Dense Table & Cue Sheet)**
+    - Berkas: `src/app/(admin)/projects/[projectId]/rundown/page.tsx`, `src/components/admin/rundown-table.tsx`, `src/components/admin/cue-sheet-badges.tsx`
+    - Tampilan: Tabel padat, drag handle icon (`GripVertical`), badge Audio/Lagu (`Headphones`), Lighting (`SunMedium`), MC (`Mic2`), avatar PIC kru, dan dialog edit durasi.
+* **Definition of Done (DoD) Sprint 5:**
+  1. Sarah dapat menerapkan template prosesi Akad Sunda ke proyek pengantin baru dalam 1 klik.
+  2. Mengubah durasi sesi Akad dari 60 menit menjadi 75 menit otomatis memajukan jam mulai sesi Sungkeman dan sesi berikutnya sejauh 15 menit secara akurat.
+
+---
+
+### Sprint 6: Direktori Keluarga/VIP & Generator PDF Guidebook TM
+
+* **Tujuan Sprint:** Mengelola susunan keluarga inti/saksi nikah dan mengekspor Buku Panduan Acara (Guidebook TM) format PDF siap cetak.
+* **Daftar Tugas:**
+  - [ ] **Task 6.1: Service & Server Actions Direktori Keluarga Inti & VIP**
+    - Berkas: `src/schemas/wedding-party-schema.ts`, `src/services/wedding-party-service.ts`, `src/actions/wedding-party-actions.ts`
+    - Fitur: CRUD data orang tua, saksi nikah, pengiring, dan nomor kontak darurat keluarga.
+  - [ ] **Task 6.2: Service Agregator Data Guidebook TM**
+    - Berkas: `src/types/guidebook-dto.ts`, `src/services/pdf-aggregator-service.ts`
+    - Fungsi: `aggregateGuidebookData(projectId)` mengumpulkan data proyek, venue, vendor terpasang, keluarga inti, dan susunan rundown cue-sheet menjadi satu DTO terstruktur (bebas data biaya sensitif).
+  - [ ] **Task 6.3: Template PDF Komponen `@react-pdf/renderer`**
+    - Berkas: `src/components/pdf/guidebook-template.tsx`, `src/components/pdf/pdf-styles.ts`
+    - Desain dokumen: Cover elegan nama pengantin, halaman kontak darurat & keluarga, halaman pemetaan vendor, dan lembar kerja rundown cue-sheet per sesi.
+  - [ ] **Task 6.4: Route Handler Streaming Dokumen PDF**
+    - Berkas: `src/app/api/pdf/guidebook/[projectId]/route.ts`
+    - Endpoint: `GET /api/pdf/guidebook/:projectId` dengan header `Content-Type: application/pdf` dan `Content-Disposition: attachment; filename="Guidebook-TM-..."`.
+  - [ ] **Task 6.5: Tombol Cetak Dokumen di Header Rundown**
+    - Berkas: `src/components/admin/rundown-header-actions.tsx`
+    - Tombol: *"Download Guidebook TM (PDF)"* dengan animasi loading saat streaming buffer berlangsung.
+* **Definition of Done (DoD) Sprint 6:**
+  1. Sarah dapat mendata saksi nikah dari pihak pria dan wanita lengkap dengan nomor telepon.
+  2. Mengklik tombol download langsung menghasilkan berkas PDF yang rapi, siap diprint untuk dibagikan kepada vendor saat Technical Meeting.
+
+---
+
+## FASE 2: Field Mobility, Client Portal & Financial Automation (P1)
+
+Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offline-first, tautan publik tanpa login untuk Bella & Kevin (Klien), brankas dokumen proyek, serta kalkulator margin profit dan honor kru privat Dimas.
+
+---
+
+### Sprint 7: Tier 1 Bujet Operasional Acara (Sarah & Dimas)
+
+* **Tujuan Sprint:** Menyediakan pelacak alokasi bujet pernikahan bersama pengantin dan monitoring status pembayaran vendor tanpa membuka margin dapur kantor.
+* **Daftar Tugas:**
+  - [ ] **Task 7.1: Skema Basis Data Bujet Operasional (Drizzle Migrations)**
+    - Berkas: `src/db/schema/operational-budgets.ts`
+    - Tabel: `project_budgets` (alokasi per kategori), `vendor_invoices` (tagihan rekanan), `payment_milestones` (termin pengantin DP 1, DP 2, Pelunasan).
+  - [ ] **Task 7.2: Server Actions Bujet Operasional Acara**
+    - Berkas: `src/schemas/budget-schema.ts`, `src/services/budget-service.ts`, `src/actions/budget-actions.ts`
+    - Otorisasi: Khusus role `OWNER` dan `PLANNER`.
+    - Fungsi: `allocateProjectBudgetAction`, `recordVendorInvoiceAction`, `updatePaymentMilestoneAction`.
+  - [ ] **Task 7.3: Desktop UI: Wedding Budget Summary Card**
+    - Berkas: `src/app/(admin)/projects/[projectId]/budget/page.tsx`, `src/components/admin/budget-summary-card.tsx`
+    - Visual: Perbandingan plafon `projects.contract_amount` terhadap total alokasi anggaran dengan progress bar dinamis (hijau = aman, merah = over budget).
+  - [ ] **Task 7.4: Desktop UI: Tabel Invoice Vendor & Termin Klien**
+    - Berkas: `src/components/admin/vendor-invoice-table.tsx`, `src/components/admin/client-milestone-card.tsx`
+    - Fitur: Pelacakan status jatuh tempo invoice vendor dan checklist bukti transfer termin klien.
+* **Definition of Done (DoD) Sprint 7:**
+  1. Sarah dapat memantau apakah bujet katering dan dekorasi masih berada di dalam plafon kontrak pengantin.
+  2. Data margin laba kotor kantor sama sekali tidak muncul pada tampilan ini.
+
+---
+
+### Sprint 8: Mobile PWA Field Mode & Logistik Sakral (Rian)
+
+* **Tujuan Sprint:** Membangun aplikasi mobile ramah jempol (touch targets $\ge 44\text{ px}$) dengan Service Worker offline-caching untuk kru lapangan hari-H.
+* **Daftar Tugas:**
+  - [ ] **Task 8.1: Setup Manifest PWA & Service Worker Offline Caching**
+    - Berkas: `public/manifest.json`, `public/icons/*`, `src/app/sw.ts` (atau `@serwist/next`)
+    - Cache strategy: Stale-While-Revalidate untuk aset statis dan Network-First with Cache-Fallback untuk data rundown & kontak.
+  - [ ] **Task 8.2: Shell Layout Mobile & Bottom Tab Bar**
+    - Berkas: `src/app/(mobile)/layout.tsx`, `src/app/(mobile)/field/[projectId]/layout.tsx`, `src/components/mobile/bottom-tab-bar.tsx`
+    - Ergonomi: Navigasi 4 tab bawah (Home, Rundown, Logistik, Kontak) dengan tinggi sentuh minimal 44 piksel.
+  - [ ] **Task 8.3: UI Live Rundown Cards ("Now Running" & "Up Next")**
+    - Berkas: `src/app/(mobile)/field/[projectId]/rundown/page.tsx`, `src/components/mobile/live-rundown-card.tsx`
+    - Tampilan: Kartu ber-border tebal dengan animasi pulse untuk sesi yang sedang berjalan, dan hitung mundur menit untuk sesi berikutnya.
+  - [ ] **Task 8.4: Pelacak Logistik Barang Sakral (*Sacred Belongings Tracker*)**
+    - Berkas: `src/db/schema/supporting-phase2.ts` (`sacred_belongings`), `src/actions/logistics-actions.ts`, `src/app/(mobile)/field/[projectId]/logistics/page.tsx`, `src/components/mobile/sacred-item-card.tsx`
+    - Fitur: Checklist posisi fisik kotak cincin, mahar, dan gaun ganti dengan toggle status instan: `[Belum Diterima] -> [Pegang Kru] -> [Di Meja Akad] -> [Diserahkan ke Keluarga]`.
+  - [ ] **Task 8.5: Slide-Up Quick Speed-Dial Sheet**
+    - Berkas: `src/components/mobile/emergency-dial-sheet.tsx`
+    - Fitur: Drawer geser bawah menampilkan nomor telepon penting (PIC Katering, PIC Sound, Orang Tua) dengan tombol 1-tap Call (`tel:...`) dan WhatsApp (`wa.me`).
+  - [ ] **Task 8.6: Indikator Status Koneksi Offline**
+    - Berkas: `src/components/mobile/offline-banner.tsx`
+    - Fitur: Floating badge warna amber muncul saat kru kehilangan sinyal di ballroom/basement: *"Mode Offline: Disimpan di Perangkat"*.
+* **Definition of Done (DoD) Sprint 8:**
+  1. Kru lapangan dapat membuka rundown di browser ponsel tanpa lag.
+  2. Saat simulasi *Airplane Mode / Offline* di Chrome DevTools diaktifkan, halaman rundown dan kontak darurat tetap terbuka normal dari Service Worker cache.
+  3. Status kotak cincin dapat diperbarui oleh Rian langsung dari ponselnya.
+
+---
+
+### Sprint 9: Portal Pengantin Publik via Token URL (Bella & Kevin)
+
+* **Tujuan Sprint:** Menyediakan portal status persiapan pernikahan yang dapat dibuka pengantin langsung dari WhatsApp tanpa proses login atau instalasi aplikasi.
+* **Daftar Tugas:**
+  - [ ] **Task 9.1: Sanitasi DTO Publik & Endpoint Route Handler**
+    - Berkas: `src/types/public-portal-dto.ts`, `src/app/api/public/portal/[token]/route.ts`
+    - Proteksi Privasi: DTO hanya berisi nama pengantin, tanggal, countdown, venue, progress checklist, dan nama vendor berstatus `BOOKED`/`SETTLED`. Dilarang mengekspos nomor HP personal PIC dan nominal uang.
+  - [ ] **Task 9.2: Implementasi Rate Limiting Anti-Brute-Force**
+    - Berkas: `src/lib/rate-limiter.ts`
+    - Aturan: Maksimal 60 request per menit per alamat IP; Throttling 15 menit jika ada lebih dari 10 kali request token 404 berturut-turut.
+  - [ ] **Task 9.3: UI Portal Klien Minimalis & Elegan**
+    - Berkas: `src/app/(public)/portal/[token]/page.tsx`, `src/components/public/wedding-countdown.tsx`, `src/components/public/confirmed-vendors-grid.tsx`
+    - Desain: Tipografi judul Serif elegan, kartu hitung mundur 4 kotak angka (Hari, Jam, Menit, Detik), bilah progres kesiapan acara, dan grid kartu rekanan resmi.
+* **Definition of Done (DoD) Sprint 9:**
+  1. Tautan `/portal/k9xZ2A8_mQ1vY4pL7rT3w` dapat dibuka langsung tanpa meminta kata sandi.
+  2. Tampilan responsif sempurna di layar smartphone pengantin.
+  3. Tidak ada kebocoran biaya sepeser pun pada response network tab.
+
+---
+
+### Sprint 10: Tier 2 Dapur Finansial & Kalkulator Honor Kru Massal (Dimas Only)
+
+* **Tujuan Sprint:** Mengamankan dapur bisnis agensi, kalkulasi margin laba bersih/kotor proyek, dan otomasi perhitungan pencairan honor harian puluhan kru lapangan.
+* **Daftar Tugas:**
+  - [ ] **Task 10.1: Skema Drizzle Tier 2 Keuangan Internal (Migrasi DB)**
+    - Berkas: `src/db/schema/company-finances.ts`
+    - Tabel: `company_finances` (1:1 dengan `projects`) dan `crew_payouts`.
+  - [ ] **Task 10.2: Enforce RBAC Guard Khusus Role OWNER**
+    - Berkas: `src/services/finance-service.ts`, `src/actions/finance-actions.ts`
+    - Guard: Wajib memanggil `assertRole(session, ["OWNER"])`. Upaya pemanggilan oleh Sarah atau kru langsung ditolak (`403 FORBIDDEN`).
+  - [ ] **Task 10.3: Logika Komputasi Profit & Margin Bisnis**
+    - Formula:
+      $$\text{gross\_profit} = \text{gross\_contract\_price} - \text{vendor\_real\_cost} - \text{crew\_total\_expense}$$
+      $$\text{net\_profit\_margin} = \left(\frac{\text{gross\_profit}}{\text{gross\_contract\_price}}\right) \times 100\%$$
+  - [ ] **Task 10.4: Logika Kalkulator Batch Payout Honor Kru Harian**
+    - Formula: $\text{payout} = \text{session\_count} \times \text{daily\_rate}$.
+    - Fitur: Fungsi `executeBatchCrewPayoutAction(projectId, payouts)` mencairkan honor puluhan staf/freelancer secara serentak setiap Minggu malam.
+  - [ ] **Task 10.5: Desktop UI: Dasbor Eksekutif Margin Bisnis & Kalkulator Kru**
+    - Berkas: `src/app/(owner-only)/finance/margins/page.tsx`, `src/app/(owner-only)/finance/crew-honor/page.tsx`, `src/components/admin/profit-metric-cards.tsx`, `src/components/admin/batch-payout-table.tsx`
+    - Tampilan: Kartu ringkasan omzet bruto, total modal vendor riil, total pengeluaran honor kru, net margin persentase, serta tabel multi-select checkbox untuk pencairan honor kru massal.
+* **Definition of Done (DoD) Sprint 10:**
+  1. Dimas dapat melihat margin keuntungan bersih tiap proyek secara privat.
+  2. Sarah atau kru lain yang mencoba mengakses URL `/finance/margins` otomatis menerima pesan akses ditolak.
+  3. Dimas dapat mencentang 15 kru lapangan yang bertugas di akhir pekan dan menekan tombol *"Cairkan Honor Terpilih"* dalam satu aksi transaksi database.
+
+---
+
+## 3. Matriks Pengujian & Verifikasi Kualitas (*Quality Gates*)
+
+| Kategori | Parameter Uji | Kriteria Kelulusan |
+| :--- | :--- | :--- |
+| **Type Safety** | TypeScript Strict Check | `npx tsc --noEmit` lolos 100% tanpa ada tipe `any`. |
+| **Linting & Code Style** | ESLint + Prettier | `npm run lint` nol error dan mengikuti aturan `.agyrules`. |
+| **Anti-Bentrok Test** | Unit/Integration Test | Tes penugasan kru di tanggal yang sama wajib melempar `CONFLICT_SCHEDULE` dan membatalkan query. |
+| **Data Leakage Test** | Endpoint Sanitization Test | Endpoint `/portal/:token` dan DTO Sarah wajib bebas dari kolom `net_profit_margin`, `vendor_real_cost`, dan `daily_rate`. |
+| **PWA Offline Test** | Lighthouse & DevTools Network | Halaman `/field/[projectId]/rundown` tetap bisa dimuat dalam status `Offline` via Service Worker. |
+| **PDF Generation Test** | Streaming Buffer Integrity | Endpoint `/api/pdf/guidebook/:projectId` menghasilkan file binary valid yang dapat dibuka di semua PDF reader. |

@@ -1,0 +1,130 @@
+# ==============================================================================
+# ANTIGRAVITY RULES (.agyrules) - WEDDING ORGANIZER SYSTEM (SINGLE-TENANT)
+# ==============================================================================
+# File konfigurasi standar aturan arsitektur, tech stack, privasi data,
+# dan gaya penulisan kode untuk pengembangan sistem Wedding Organizer internal.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. TECH STACK & DEPENDENCY RULES
+# ------------------------------------------------------------------------------
+tech_stack:
+  framework:
+    name: "Next.js"
+    router: "App Router"
+    version: ">=14.x"
+  language:
+    name: "TypeScript"
+    strict: true
+    rule_no_any: "LARANGAN KERAS menggunakan tipe 'any'. Wajib gunakan generic, interface, type alias, atau 'unknown' dengan type narrowing."
+  styling_and_ui:
+    css: "Tailwind CSS"
+    components: "Shadcn UI (Radix UI primitives)"
+    icons: "lucide-react"
+  validation:
+    library: "Zod"
+    enforcement: "Wajib digunakan untuk validasi semua form input, argumen Server Actions, URL Search Params, dan request handler API."
+  database_and_orm:
+    recommended_db: "PostgreSQL (Supabase / Neon / Self-hosted Docker)"
+    orm: "Drizzle ORM (atau Prisma ORM dengan strict type safety)"
+  auth_and_access:
+    engine: "Auth.js (NextAuth v5) / Iron Session"
+    roles: ["OWNER", "PLANNER", "CREW"]
+    guest_access: "Tokenized URL (UUID/CUID) tanpa autentikasi login untuk portal klien (Pengantin)"
+  utilities:
+    dates: "date-fns (dengan locale id / Bahasa Indonesia untuk rundown & tanggal acara)"
+    pdf_generation: "@react-pdf/renderer (untuk Master Rundown & Guidebook TM)"
+    pwa_offline: "@serwist/next / Service Worker (caching rundown dan checklist untuk kru di area venue minim sinyal)"
+
+# ------------------------------------------------------------------------------
+# 2. ARCHITECTURE & PATTERN CONSTRAINTS
+# ------------------------------------------------------------------------------
+architecture:
+  tenancy:
+    type: "Single-Tenant"
+    constraints:
+      - "TIDAK DIPERBOLEHKAN membuat tabel 'tenants', 'organizations', atau kolom 'tenant_id'."
+      - "Sistem ini dibangun khusus secara eksklusif untuk 1 instansi Wedding Organizer internal."
+  
+  separation_of_concerns:
+    ui_layer:
+      - "Komponen UI (Server & Client Components) DILARANG KERAS memanggil query basis data secara langsung (e.g. db.query, prisma.findMany, raw SQL)."
+      - "Komponen UI hanya bertugas me-render view dan berinteraksi via Server Actions atau Service Layer."
+    service_layer:
+      - "Seluruh business logic, query basis data, transaksi, dan kalkulasi wajib dienkapsulasi di dalam Service Layer (`src/services/*`) atau Server Actions (`src/actions/*`)."
+      - "Server Actions harus berfungsi sebagai thin controller yang memvalidasi input via Zod lalu mendelegasikan eksekusi ke Service Layer."
+    directory_structure:
+      root: "src/"
+      components: "src/components/"
+      actions: "src/actions/"
+      services: "src/services/"
+      schemas: "src/schemas/"
+      lib: "src/lib/"
+      types: "src/types/"
+
+# ------------------------------------------------------------------------------
+# 3. STRICT PRIVACY & DATA LEAKAGE RULES (RBAC SENSITIVITY)
+# ------------------------------------------------------------------------------
+privacy_and_security:
+  financial_data_boundary:
+    internal_company_finance: # Dapur Bisnis (Owner-Only)
+      columns:
+        - "margin_laba / profit_margin"
+        - "laba_kotor_bersih / net_gross_profit"
+        - "tarif_honor_kru / crew_rate / crew_fee"
+        - "rekap_gaji_kru / crew_payout_recap"
+      allowed_roles: ["OWNER"]
+      enforcement: >
+        DILARANG KERAS mengikutsertakan kolom keuangan internal di atas dalam DTO,
+        Response Object, Server Action output, atau React Client State yang dapat dibaca
+        oleh role selain OWNER (Dimas).
+
+    operational_event_budget: # Bujet Acara (Owner & Planner)
+      columns:
+        - "nilai_kontrak_paket / client_package_price"
+        - "tagihan_vendor / vendor_invoice_amount"
+        - "termin_pembayaran / payment_milestones"
+        - "alokasi_bujet_kategori / category_budget_allocation"
+      allowed_roles: ["OWNER", "PLANNER"]
+      enforcement: >
+        Role PLANNER (Sarah) berhak membaca dan menginput data bujet operasional proyek
+        untuk menyusun wedding budget breakdown bersama klien dan memvalidasi invoice vendor.
+
+    restricted_roles:
+      crew_rule:
+        role: "CREW"
+        allowed_data: "Sama sekali DILARANG mengakses data keuangan (biaya vendor, harga paket klien, honor kru lain)."
+      client_rule:
+        role: "CLIENT (Tokenized Shared Link)"
+        allowed_data: "Read-only progres acara, countdown, dan daftar vendor terkonfirmasi tanpa nominal biaya internal."
+
+  data_transfer_objects:
+    mandatory_pattern: "Gunakan DTO/projection eksplisit (misal: 'select: { id: true, name: true }') saat query, hindari 'SELECT *' yang mengekspos seluruh kolom tabel ke client."
+# ------------------------------------------------------------------------------
+# 4. CODE STYLE & CONVENTIONS
+# ------------------------------------------------------------------------------
+code_style:
+  naming_conventions:
+    files_and_directories: "kebab-case (contoh: `reverse-timeline.ts`, `vendor-card.tsx`, `anti-conflict-check.ts`)"
+    schemas: "PascalCase berakhiran Schema (contoh: `ProjectSchema`, `CreateRundownItemSchema`, `AssignCrewSchema`)"
+    types_and_interfaces: "PascalCase (contoh: `ProjectDetail`, `RundownItem`, `CrewMember`)"
+    functions_and_variables: "camelCase (contoh: `calculateCrewHonor`, `validateCrewAvailability`, `getProjectBySlug`)"
+    database_tables: "snake_case jamak (contoh: `projects`, `project_crews`, `rundown_items`, `vendors`)"
+    database_columns: "snake_case (contoh: `wedding_date`, `is_verified`, `contact_number`)"
+
+  error_handling_standard:
+    pattern: "Result / Envelope Pattern"
+    schema_definition: |
+      export type ActionError = {
+        code: string;       // Contoh: 'CONFLICT_SCHEDULE', 'UNAUTHORIZED', 'NOT_FOUND', 'VALIDATION_ERROR'
+        message: string;    // Pesan ramah pengguna dalam Bahasa Indonesia
+        details?: unknown;  // Detail tambahan opsional (e.g. Zod error issues)
+      };
+
+      export type ActionResponse<T = void> = 
+        | { success: true; data: T; error?: never }
+        | { success: false; data?: never; error: ActionError };
+
+    rules:
+      - "Jangan throw unhandled generic Error di Server Actions. Selalu bungkus dalam ActionResponse."
+      - "Gunakan Error Code yang jelas dan deskriptif untuk mempermudah toast/alert di frontend."
