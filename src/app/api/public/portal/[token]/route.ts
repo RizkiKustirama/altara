@@ -20,7 +20,7 @@ export async function GET(
 ) {
   // Extract client IP address
   const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0].trim() : "127.0.0.1";
+  const ip = forwarded ? forwarded.split(",")[0]?.trim() || "127.0.0.1" : "127.0.0.1";
 
   // Check rate limit & anti-brute-force
   const rateLimit = checkRateLimit(ip);

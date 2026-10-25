@@ -50,5 +50,8 @@ test("🧪 Testing Rate Limiter & Anti-Brute-Force Token Enumeration...", () => 
   const legitimateCheck = checkRateLimit("10.0.0.1", now + 11000);
   assert.equal(legitimateCheck.allowed, true, "Different IP should not be blocked");
 
+  // Record successful attempt resets failure counters
+  recordSuccessfulAttempt(attackerIp, now + 12000);
+
   console.log("✅ Rate Limiter & Anti-Brute-Force tests PASSED!");
 });

@@ -44,7 +44,7 @@ export async function getPublicPortalDataByToken(
     .select({
       category: projectVendors.category,
       vendorName: vendors.vendorName,
-      status: projectVendors.status,
+      status: projectVendors.contractStatus,
     })
     .from(projectVendors)
     .innerJoin(vendors, eq(projectVendors.vendorId, vendors.id))
@@ -67,8 +67,8 @@ export async function getPublicPortalDataByToken(
   // Based on confirmed vendor partners + rundown sessions ready
   const confirmedVendorsCount = vendorSlots.filter(
     (v) =>
-      v.status === "CONFIRMED" ||
       v.status === "BOOKED" ||
+      v.status === "DP_PAID" ||
       v.status === "SETTLED"
   ).length;
 
