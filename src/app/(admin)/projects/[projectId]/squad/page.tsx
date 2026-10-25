@@ -13,6 +13,7 @@ import {
   Users,
   ShieldCheck,
   Building,
+  Clock,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { id as localeId } from "date-fns/locale";
@@ -129,6 +130,17 @@ export default async function ProjectSquadPage({ params }: SquadPageProps) {
             >
               <Building className="h-3.5 w-3.5" />
               <span>Rekanan Vendor ({project.vendorCount})</span>
+            </Button>
+          </Link>
+
+          <Link href={`/projects/${project.id}/rundown`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground gap-1.5"
+            >
+              <Clock className="h-3.5 w-3.5" />
+              <span>Susunan Acara</span>
             </Button>
           </Link>
         </div>
