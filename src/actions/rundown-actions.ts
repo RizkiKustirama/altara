@@ -225,6 +225,42 @@ export async function updateRundownItemAction(
 }
 
 /**
+ * Memperbarui status sesi rundown di lapangan (khusus Kru & Lead yang bertugas di proyek).
+ */
+export async function updateRundownStatusAction(input: {
+  projectId: string;
+  itemId: string;
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "DELAYED";
+}): Promise<ActionResponse<ProjectRundown>> {
+  const session = await getSession();
+  const accessCheck = await assertProjectAccess(session, input.projectId);
+  if (!accessCheck.success) return accessCheck;
+
+  try {
+    const updated = await updateProjectRundownItem(input.itemId, input.projectId, {
+      status: input.status,
+    });
+    if (!updated) {
+      return {
+        success: false,
+        error: { code: "NOT_FOUND", message: "Item rundown tidak ditemukan" },
+      };
+    }
+
+    revalidatePath(`/field/${input.projectId}`);
+    revalidatePath(`/field/${input.projectId}/rundown`);
+    revalidatePath(`/projects/${input.projectId}/rundown`);
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error in updateRundownStatusAction:", error);
+    return {
+      success: false,
+      error: { code: "BAD_REQUEST", message: "Gagal memperbarui status sesi acara" },
+    };
+  }
+}
+
+/**
  * Menghapus agenda acara dari rundown proyek.
  */
 export async function deleteRundownItemAction(
