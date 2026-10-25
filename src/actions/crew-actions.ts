@@ -6,18 +6,23 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { assertRole, assertProjectLeadAccess } from "@/lib/auth-guard";
 import { getSession } from "@/lib/auth";
+import bcrypt from "bcryptjs";
 import {
   assignCrewToProject,
   removeCrewFromProject,
   getProjectCrews,
   checkCrewAvailability,
+  getCrewDirectory,
   type CrewAssignmentDTO,
+  type CrewDirectoryItemDTO,
 } from "@/services/crew-service";
 import {
   AssignCrewSchema,
   RemoveCrewSchema,
+  CreateCrewMemberSchema,
   type AssignCrewInput,
   type RemoveCrewInput,
+  type CreateCrewMemberInput,
 } from "@/schemas/crew-schema";
 import type { ActionResponse } from "@/types/action-response";
 
@@ -129,6 +134,98 @@ export async function getAvailableCrewUsersAction(
       error: {
         code: "BAD_REQUEST",
         message: "Gagal memeriksa ketersediaan staf kru.",
+        details: err instanceof Error ? err.message : String(err),
+      },
+    };
+  }
+}
+
+export async function getCrewDirectoryAction(): Promise<ActionResponse<CrewDirectoryItemDTO[]>> {
+  const session = await getSession();
+  const auth = assertRole(session, ["OWNER", "MANAGEMENT", "CREW"]);
+  if (!auth.success) return auth;
+
+  return getCrewDirectory();
+}
+
+export async function createCrewMemberAction(
+  input: CreateCrewMemberInput
+): Promise<ActionResponse<{ userId: string; fullName: string }>> {
+  const session = await getSession();
+  const auth = assertRole(session, ["OWNER", "MANAGEMENT"]);
+  if (!auth.success) return auth;
+
+  const parsed = CreateCrewMemberSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Data pendaftaran kru tidak valid.",
+        details: parsed.error.flatten(),
+      },
+    };
+  }
+
+  try {
+    // Check if email already registered
+    const existing = await db.query.users.findFirst({
+      where: eq(users.email, parsed.data.email),
+      columns: { id: true },
+    });
+
+    if (existing) {
+      return {
+        success: false,
+        error: {
+          code: "CONFLICT_SCHEDULE",
+          message: "Alamat email sudah terdaftar di sistem Altara.",
+        },
+      };
+    }
+
+    const passwordHash = await bcrypt.hash(parsed.data.password ?? "password123", 10);
+
+    const inserted = await db
+      .insert(users)
+      .values({
+        fullName: parsed.data.fullName,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        role: parsed.data.role,
+        passwordHash,
+        isActive: true,
+      })
+      .returning({ id: users.id, fullName: users.fullName });
+
+    const newUser = inserted[0];
+    if (!newUser) {
+      return {
+        success: false,
+        error: {
+          code: "BAD_REQUEST",
+          message: "Gagal menyimpan data pengguna ke basis data.",
+        },
+      };
+    }
+
+    revalidatePath("/crew");
+    revalidatePath("/dashboard");
+    revalidatePath("/projects");
+
+    return {
+      success: true,
+      data: {
+        userId: newUser.id,
+        fullName: newUser.fullName,
+      },
+    };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: {
+        code: "BAD_REQUEST",
+        message: "Gagal mendaftarkan kru baru.",
         details: err instanceof Error ? err.message : String(err),
       },
     };

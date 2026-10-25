@@ -257,3 +257,67 @@ export async function getProjectCrews(
     };
   }
 }
+
+export interface CrewDirectoryItemDTO {
+  userId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: "OWNER" | "MANAGEMENT" | "CREW";
+  isActive: boolean;
+  totalAssignments: number;
+  upcomingAssignments: {
+    projectId: string;
+    projectName: string;
+    eventDate: string;
+    roleInProject: string;
+  }[];
+}
+
+export async function getCrewDirectory(): Promise<ActionResponse<CrewDirectoryItemDTO[]>> {
+  try {
+    const allUsers = await db.query.users.findMany({
+      orderBy: [users.fullName],
+      with: {
+        projectAssignments: {
+          with: {
+            project: {
+              columns: { id: true, projectName: true, weddingDate: true },
+            },
+          },
+        },
+      },
+    });
+
+    const data: CrewDirectoryItemDTO[] = allUsers.map((u) => {
+      const assignments = u.projectAssignments.map((a) => ({
+        projectId: a.projectId,
+        projectName: a.project?.projectName ?? "Proyek",
+        eventDate: a.eventDate,
+        roleInProject: a.roleInProject,
+      }));
+
+      return {
+        userId: u.id,
+        fullName: u.fullName,
+        email: u.email,
+        phone: u.phone,
+        role: u.role,
+        isActive: u.isActive,
+        totalAssignments: assignments.length,
+        upcomingAssignments: assignments.slice(0, 3),
+      };
+    });
+
+    return { success: true, data };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: {
+        code: "BAD_REQUEST",
+        message: "Gagal mengambil direktori master kru.",
+        details: err instanceof Error ? err.message : String(err),
+      },
+    };
+  }
+}

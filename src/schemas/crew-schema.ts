@@ -30,6 +30,15 @@ export const RemoveCrewSchema = z.object({
   projectId: z.string().uuid("ID proyek tidak valid"),
 });
 
+export const CreateCrewMemberSchema = z.object({
+  fullName: z.string().min(2, "Nama kru minimal 2 karakter"),
+  email: z.string().email("Format alamat email tidak valid"),
+  phone: z.string().min(8, "Nomor telepon minimal 8 digit"),
+  role: z.enum(["MANAGEMENT", "CREW"]).default("CREW"),
+  password: z.string().min(6, "Kata sandi minimal 6 karakter").optional(),
+});
+
 export type AssignCrewInput = z.infer<typeof AssignCrewSchema>;
 export type RemoveCrewInput = z.infer<typeof RemoveCrewSchema>;
+export type CreateCrewMemberInput = z.infer<typeof CreateCrewMemberSchema>;
 export type CrewRole = z.infer<typeof crewRoleEnumSchema>;

@@ -45,9 +45,9 @@ export function Sidebar({ user }: SidebarProps) {
     },
     {
       label: "Skuad & Kru",
-      href: "/projects",
+      href: "/crew",
       icon: Users,
-      roles: ["OWNER", "MANAGEMENT"],
+      roles: ["OWNER", "MANAGEMENT", "CREW"],
     },
     {
       label: "Honor Kru Mingguan",
