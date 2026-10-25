@@ -1,6 +1,6 @@
 # Sprint 6: Direktori Keluarga/VIP & Generator PDF Guidebook TM Implementation Plan
 
-> **Status:** ⏳ IN PROGRESS (Executing Task-by-Task)
+> **Status:** ✅ COMPLETED (All tasks 6.1 - 6.5 implemented, tested, and verified)
 > **Goal:** Mengelola susunan keluarga inti/saksi nikah/VIP pengantin, agregator data Buku Panduan Acara (Guidebook TM) bebas dari data biaya finansial sensitif, template PDF siap cetak `@react-pdf/renderer`, streaming route handler `GET /api/pdf/guidebook/[projectId]`, serta tombol 1-klik unduh Guidebook TM di header susunan acara.
 
 ---

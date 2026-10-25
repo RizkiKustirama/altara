@@ -183,20 +183,20 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner), Maya (Managemen
 
 * **Tujuan Sprint:** Mengelola susunan keluarga inti/saksi nikah dan mengekspor Buku Panduan Acara (Guidebook TM) format PDF siap cetak.
 * **Daftar Tugas:**
-  - [ ] **Task 6.1: Service & Server Actions Direktori Keluarga Inti & VIP**
+  - [x] **Task 6.1: Service & Server Actions Direktori Keluarga Inti & VIP**
     - Berkas: `src/schemas/wedding-party-schema.ts`, `src/services/wedding-party-service.ts`, `src/actions/wedding-party-actions.ts`
     - Fitur: CRUD data orang tua, saksi nikah, pengiring, dan nomor kontak darurat keluarga.
-  - [ ] **Task 6.2: Service Agregator Data Guidebook TM**
+  - [x] **Task 6.2: Service Agregator Data Guidebook TM**
     - Berkas: `src/types/guidebook-dto.ts`, `src/services/pdf-aggregator-service.ts`
     - Fungsi: `aggregateGuidebookData(projectId)` mengumpulkan data proyek, venue, vendor terpasang, keluarga inti, dan susunan rundown cue-sheet menjadi satu DTO terstruktur (bebas data biaya sensitif).
-  - [ ] **Task 6.3: Template PDF Komponen `@react-pdf/renderer`**
+  - [x] **Task 6.3: Template PDF Komponen `@react-pdf/renderer`**
     - Berkas: `src/components/pdf/guidebook-template.tsx`, `src/components/pdf/pdf-styles.ts`
     - Desain dokumen: Cover elegan nama pengantin, halaman kontak darurat & keluarga, halaman pemetaan vendor, dan lembar kerja rundown cue-sheet per sesi.
-  - [ ] **Task 6.4: Route Handler Streaming Dokumen PDF**
+  - [x] **Task 6.4: Route Handler Streaming Dokumen PDF**
     - Berkas: `src/app/api/pdf/guidebook/[projectId]/route.ts`
     - Endpoint: `GET /api/pdf/guidebook/:projectId` dengan header `Content-Type: application/pdf` dan `Content-Disposition: attachment; filename="Guidebook-TM-..."`.
-  - [ ] **Task 6.5: Tombol Cetak Dokumen di Header Rundown**
-    - Berkas: `src/components/admin/rundown-header-actions.tsx`
+  - [x] **Task 6.5: Tombol Cetak Dokumen di Header Rundown**
+    - Berkas: `src/components/admin/family-directory-drawer.tsx`, `src/components/admin/project-rundown-client.tsx`
     - Tombol: *"Download Guidebook TM (PDF)"* dengan animasi loading saat streaming buffer berlangsung.
 * **Definition of Done (DoD) Sprint 6:**
   1. Lead Planner dapat mendata saksi nikah dari pihak pria dan wanita lengkap dengan nomor telepon.
