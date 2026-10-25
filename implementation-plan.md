@@ -136,19 +136,19 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner), Maya (Managemen
 
 * **Tujuan Sprint:** Mengelola direktori master vendor, slotting rekanan ke dalam proyek pengantin, dan integrasi tautan pesan instan WhatsApp otomatis.
 * **Daftar Tugas:**
-  - [ ] **Task 4.1: Helper Sanitasi Nomor & Generator Deep-Link WhatsApp**
+  - [x] **Task 4.1: Helper Sanitasi Nomor & Generator Deep-Link WhatsApp**
     - Berkas: `src/lib/whatsapp.ts`
     - Fungsi: `sanitizeIndonesianPhone` (konversi `08...`/`+628...` ke `628...`) dan `generateVendorTmWhatsappUrl(draft)` dengan `encodeURIComponent`.
-  - [ ] **Task 4.2: Skema Zod & Service Vendor**
+  - [x] **Task 4.2: Skema Zod & Service Vendor**
     - Berkas: `src/schemas/vendor-schema.ts`, `src/services/vendor-service.ts`
     - Fitur: CRUD master vendor, slotting vendor ke `project_vendors`, filter kategori (MUA, Dekorasi, Katering, Foto, Sound, dll.).
-  - [ ] **Task 4.3: Server Actions Vendor & Slotting Acara**
+  - [x] **Task 4.3: Server Actions Vendor & Slotting Acara**
     - Berkas: `src/actions/vendor-actions.ts`
     - Fungsi: `createVendorAction`, `slotVendorToProjectAction`, `updateVendorStatusAction`.
-  - [ ] **Task 4.4: Desktop UI: Master Katalog Vendor Rekanan**
+  - [x] **Task 4.4: Desktop UI: Master Katalog Vendor Rekanan**
     - Berkas: `src/app/(admin)/vendors/page.tsx`, `src/components/admin/vendor-form-dialog.tsx`
     - Tampilan: Tabel master vendor, filter kategori, badge status keaktifan, dan tombol kontak WhatsApp.
-  - [ ] **Task 4.5: Desktop UI: Slide-Over Slotting Vendor Proyek**
+  - [x] **Task 4.5: Desktop UI: Slide-Over Slotting Vendor Proyek**
     - Berkas: `src/app/(admin)/projects/[projectId]/vendors/page.tsx`, `src/components/admin/vendor-slot-card.tsx`
     - Fitur: Pemetaan slot vendor per kebutuhan acara pengantin, tombol 1-klik buka WhatsApp untuk undangan Technical Meeting (TM).
 * **Definition of Done (DoD) Sprint 4:**
