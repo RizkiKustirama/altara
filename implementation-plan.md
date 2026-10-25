@@ -214,19 +214,19 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
 
 * **Tujuan Sprint:** Menyediakan pelacak alokasi bujet pernikahan bersama pengantin dan monitoring status pembayaran vendor tanpa membuka margin dapur kantor.
 * **Daftar Tugas:**
-  - [ ] **Task 7.1: Skema Basis Data Bujet Operasional (Drizzle Migrations)**
-    - Berkas: `src/db/schema/operational-budgets.ts`
+  - [x] **Task 7.1: Skema Basis Data Bujet Operasional (Drizzle Migrations)**
+    - Berkas: `src/db/schema/operational-budgets.ts`, `src/lib/budget-math.ts`, `src/services/budget-service.ts`
     - Tabel: `project_budgets` (alokasi per kategori), `vendor_invoices` (tagihan rekanan), `payment_milestones` (termin pengantin DP 1, DP 2, Pelunasan).
-  - [ ] **Task 7.2: Server Actions Bujet Operasional Acara**
+  - [x] **Task 7.2: Server Actions Bujet Operasional Acara**
     - Berkas: `src/schemas/budget-schema.ts`, `src/services/budget-service.ts`, `src/actions/budget-actions.ts`
     - Otorisasi: `OWNER`, `MANAGEMENT`, dan `LEAD_PLANNER` proyek.
-    - Fungsi: `allocateProjectBudgetAction`, `recordVendorInvoiceAction`, `updatePaymentMilestoneAction`.
-  - [ ] **Task 7.3: Desktop UI: Wedding Budget Summary Card**
-    - Berkas: `src/app/(admin)/projects/[projectId]/budget/page.tsx`, `src/components/admin/budget-summary-card.tsx`
+    - Fungsi: `allocateBudgetCategoryAction`, `recordVendorInvoiceAction`, `updatePaymentMilestoneAction`.
+  - [x] **Task 7.3: Desktop UI: Wedding Budget Summary Card**
+    - Berkas: `src/components/admin/budget-summary-card.tsx`, `src/components/admin/budget-category-table.tsx`, `src/components/admin/budget-item-dialog.tsx`
     - Visual: Perbandingan plafon `projects.contract_amount` terhadap total alokasi anggaran dengan progress bar dinamis (hijau = aman, merah = over budget).
-  - [ ] **Task 7.4: Desktop UI: Tabel Invoice Vendor & Termin Klien**
-    - Berkas: `src/components/admin/vendor-invoice-table.tsx`, `src/components/admin/client-milestone-card.tsx`
-    - Fitur: Pelacakan status jatuh tempo invoice vendor dan checklist bukti transfer termin klien.
+  - [x] **Task 7.4: Desktop UI: Tabel Invoice Vendor & Termin Klien**
+    - Berkas: `src/components/admin/vendor-invoice-table.tsx`, `src/components/admin/client-milestone-card.tsx`, `src/components/admin/vendor-invoice-dialog.tsx`, `src/components/admin/client-milestone-dialog.tsx`, `src/components/admin/project-budget-client.tsx`, `src/app/(admin)/projects/[projectId]/budget/page.tsx`
+    - Fitur: Pelacakan status jatuh tempo invoice vendor, checklist bukti transfer termin klien, dan 1-klik WhatsApp payment reminder.
 * **Definition of Done (DoD) Sprint 7:**
   1. Sarah dapat memantau apakah bujet katering dan dekorasi masih berada di dalam plafon kontrak pengantin.
   2. Data margin laba kotor kantor sama sekali tidak muncul pada tampilan ini.
