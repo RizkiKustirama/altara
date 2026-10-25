@@ -10,7 +10,9 @@ import { RundownTable } from "./rundown-table";
 import { ApplyTemplateDialog } from "./apply-template-dialog";
 import { ShiftTimeDialog } from "./shift-time-dialog";
 import { RundownItemDialog } from "./rundown-item-dialog";
+import { FamilyDirectoryDrawer } from "./family-directory-drawer";
 import type { ProjectRundown, EventTemplate } from "@/db/schema/rundowns";
+import type { WeddingParty } from "@/db/schema/wedding-parties";
 import { calculateDurationMinutes } from "@/lib/rundown-time";
 import {
   ArrowLeft,
@@ -22,9 +24,12 @@ import {
   Sparkles,
   FastForward,
   Plus,
+  FileDown,
+  Loader2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { id as localeId } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface ProjectRundownClientProps {
   project: {
@@ -37,6 +42,7 @@ interface ProjectRundownClientProps {
     leadPlannerName?: string | null;
   };
   initialItems: ProjectRundown[];
+  familyMembers: WeddingParty[];
   templates: (EventTemplate & { itemCount: number })[];
   canManage: boolean;
 }
@@ -44,6 +50,7 @@ interface ProjectRundownClientProps {
 export function ProjectRundownClient({
   project,
   initialItems,
+  familyMembers,
   templates,
   canManage,
 }: ProjectRundownClientProps) {
@@ -54,7 +61,9 @@ export function ProjectRundownClient({
   const [shiftDialogOpen, setShiftDialogOpen] = useState(false);
   const [shiftInitialIndex, setShiftInitialIndex] = useState(0);
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
+  const [familyDrawerOpen, setFamilyDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ProjectRundown | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   // Sync state if props change
   React.useEffect(() => {
@@ -96,6 +105,32 @@ export function ProjectRundownClient({
 
   const handleRefresh = () => {
     router.refresh();
+  };
+
+  const handleDownloadPdf = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(`/api/pdf/guidebook/${project.id}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Gagal mengunduh berkas PDF");
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeFilename = project.projectName.replace(/[^a-zA-Z0-9_-]/g, "_");
+      a.download = `Guidebook-TM-${safeFilename}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success("Buku Panduan TM (PDF) berhasil diunduh!");
+    } catch (error: any) {
+      toast.error(error.message || "Gagal mengunduh dokumen PDF");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const lastItem = items[items.length - 1];
@@ -233,43 +268,72 @@ export function ProjectRundownClient({
           )}
         </div>
 
-        {canManage && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setApplyDialogOpen(true)}
-              className="text-xs gap-1.5 text-stone-700 hover:text-stone-900"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              <span>Terapkan Template</span>
-            </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Family Directory Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFamilyDrawerOpen(true)}
+            className="text-xs gap-1.5 text-stone-700 hover:text-stone-900"
+          >
+            <Users className="h-3.5 w-3.5 text-stone-500" />
+            <span>Keluarga & Saksi ({familyMembers.length})</span>
+          </Button>
 
-            {items.length > 0 && (
+          {/* Download Guidebook TM PDF Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadPdf}
+            disabled={downloading}
+            className="text-xs gap-1.5 text-stone-700 hover:text-stone-900 border-border"
+          >
+            {downloading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-stone-600" />
+            ) : (
+              <FileDown className="h-3.5 w-3.5 text-stone-600" />
+            )}
+            <span>{downloading ? "Menyiapkan PDF..." : "Download Guidebook TM (PDF)"}</span>
+          </Button>
+
+          {canManage && (
+            <>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setShiftInitialIndex(0);
-                  setShiftDialogOpen(true);
-                }}
-                className="text-xs gap-1.5 text-amber-700 hover:text-amber-900 border-amber-200 bg-amber-50/40 hover:bg-amber-50"
+                onClick={() => setApplyDialogOpen(true)}
+                className="text-xs gap-1.5 text-stone-700 hover:text-stone-900"
               >
-                <FastForward className="h-3.5 w-3.5 text-amber-600" />
-                <span>Geser Jadwal (Shift Delay)</span>
+                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                <span>Terapkan Template</span>
               </Button>
-            )}
 
-            <Button
-              size="sm"
-              onClick={handleCreateNew}
-              className="text-xs bg-stone-900 text-stone-50 hover:bg-stone-800 gap-1.5"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Tambah Agenda</span>
-            </Button>
-          </div>
-        )}
+              {items.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShiftInitialIndex(0);
+                    setShiftDialogOpen(true);
+                  }}
+                  className="text-xs gap-1.5 text-amber-700 hover:text-amber-900 border-amber-200 bg-amber-50/40 hover:bg-amber-50"
+                >
+                  <FastForward className="h-3.5 w-3.5 text-amber-600" />
+                  <span>Geser Jadwal (Shift Delay)</span>
+                </Button>
+              )}
+
+              <Button
+                size="sm"
+                onClick={handleCreateNew}
+                className="text-xs bg-stone-900 text-stone-50 hover:bg-stone-800 gap-1.5"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Tambah Agenda</span>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Main Rundown Table */}
@@ -283,6 +347,15 @@ export function ProjectRundownClient({
       />
 
       {/* Modals & Drawers */}
+      <FamilyDirectoryDrawer
+        projectId={project.id}
+        open={familyDrawerOpen}
+        onOpenChange={setFamilyDrawerOpen}
+        members={familyMembers}
+        canManage={canManage}
+        onRefresh={handleRefresh}
+      />
+
       <ApplyTemplateDialog
         projectId={project.id}
         open={applyDialogOpen}

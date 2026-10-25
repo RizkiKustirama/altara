@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { assertProjectAccess } from "@/lib/auth-guard";
 import { getProjectOverviewAction } from "@/actions/project-actions";
 import { getProjectRundowns } from "@/services/rundown-service";
+import { getWeddingPartyMembers } from "@/services/wedding-party-service";
 import { getEventTemplates } from "@/services/template-service";
 import { ProjectRundownClient } from "@/components/admin/project-rundown-client";
 
@@ -27,9 +28,10 @@ export default async function ProjectRundownPage({
     notFound();
   }
 
-  const [projectRes, rundownItems, templates] = await Promise.all([
+  const [projectRes, rundownItems, familyMembers, templates] = await Promise.all([
     getProjectOverviewAction(params.projectId),
     getProjectRundowns(params.projectId),
+    getWeddingPartyMembers(params.projectId),
     getEventTemplates(),
   ]);
 
@@ -48,6 +50,7 @@ export default async function ProjectRundownPage({
     <ProjectRundownClient
       project={project}
       initialItems={rundownItems}
+      familyMembers={familyMembers}
       templates={templates}
       canManage={canManage}
     />
