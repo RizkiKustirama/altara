@@ -1,7 +1,7 @@
 # Rencana Implementasi Bertahap (Master Phased Implementation Plan)
 ## Sistem Manajemen Operasional & Finansial Wedding Organizer (Single-Tenant)
 
-Dokumen ini merupakan panduan eksekusi teknis tingkat lanjut (*step-by-step execution roadmap*) untuk membangun sistem operasional Wedding Organizer internal berdasarkan spesifikasi pada [requirements.md](file:///D:/PROJECT/WO/requirements.md), [architecture.md](file:///D:/PROJECT/WO/architecture.md), [schema.md](file:///D:/PROJECT/WO/schema.md), [workflows.md](file:///D:/PROJECT/WO/workflows.md), [rbac-security.md](file:///D:/PROJECT/WO/rbac-security.md), [api-contracts.md](file:///D:/PROJECT/WO/api-contracts.md), [ui-specs.md](file:///D:/PROJECT/WO/ui-specs.md), dan [.agyrules](file:///D:/PROJECT/WO/.agyrules).
+Dokumen ini merupakan panduan eksekusi teknis tingkat lanjut (*step-by-step execution roadmap*) untuk membangun sistem operasional Wedding Organizer internal berdasarkan spesifikasi pada [requirements.md](file:///D:/PROJECT/altara/docs/requirements.md), [architecture.md](file:///D:/PROJECT/altara/docs/architecture.md), [schema.md](file:///D:/PROJECT/altara/docs/schema.md), [workflows.md](file:///D:/PROJECT/altara/docs/workflows.md), [rbac-security.md](file:///D:/PROJECT/altara/docs/rbac-security.md), [api-contracts.md](file:///D:/PROJECT/altara/docs/api-contracts.md), [ui-specs.md](file:///D:/PROJECT/altara/docs/ui-specs.md), dan [.agyrules](file:///D:/PROJECT/altara/.agyrules).
 
 ---
 
@@ -27,7 +27,7 @@ flowchart TD
         S7["Sprint 7: Tier 1 Bujet Operasional Acara"]
         S8["Sprint 8: Mobile PWA Field Mode & Logistik Sakral"]
         S9["Sprint 9: Portal Pengantin Publik via Token URL"]
-        S10["Sprint 10: Tier 2 Dapur Finansial & Honor Kru (Owner Only)"]
+        S10["Sprint 10: Tier 2A Pencairan Honor Kru & Tier 2B Margin Kantor"]
         
         S3 & S4 --> S7
         S3 & S5 --> S8
@@ -40,7 +40,7 @@ flowchart TD
 
 ## FASE 1: Core Planning Engine & Anti-Conflict (MVP - P0)
 
-Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Planner) untuk mendaftarkan proyek pernikahan, mengalokasikan skuad kru tanpa risiko bentrok jadwal, mengelola vendor rekanan, menyusun rundown dengan template adat, serta mengekspor Buku Panduan TM (PDF).
+Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner), Maya (Management), dan Sarah (Lead Planner / PM) untuk mendaftarkan proyek pernikahan, menunjuk Project Manager, mengalokasikan skuad kru tanpa risiko bentrok jadwal, mengelola vendor rekanan, menyusun rundown dengan template adat, serta mengekspor Buku Panduan TM (PDF).
 
 ---
 
@@ -100,14 +100,14 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
     - Commit: `0c41e04` (`feat(auth): build responsive login UI page with demo credentials picker (Task 2.6)`)
 * **Definition of Done (DoD) Sprint 2:**
   1. Pengguna dapat login dengan akun Dimas, Sarah, dan Rian lalu diarahkan ke dashboard masing-masing.
-  2. Akses ke URL `(owner-only)` oleh Sarah atau Rian otomatis terlempar ke 403 atau dialihkan (*redirect*).
+  2. Akses ke URL `(owner-only)` oleh Manajemen atau Kru otomatis ditolak (`403`).
   3. Server Actions mengembalikan `ActionError` berformat JSON standar saat unauthenticated.
 
 ---
 
 ### Sprint 3: Manajemen Proyek, Skuad & Mesin Anti-Bentrok Penjadwalan Kru
 
-* **Tujuan Sprint:** Menyediakan fungsionalitas pembuatan proyek pernikahan, pembuatan public token instan, serta mesin validasi anti-bentrok jadwal kru.
+* **Tujuan Sprint:** Menyediakan fungsionalitas pendaftaran proyek pernikahan, penunjukan Lead Planner (PM), pembuatan public token instan, serta mesin validasi anti-bentrok jadwal kru.
 * **Status:** ✅ **SELESAI (Committed & Pushed to GitHub)**
 * **Daftar Tugas:**
   - [x] **Task 3.1: Skema Validasi Zod Proyek & Penugasan Kru**
@@ -152,7 +152,7 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
     - Berkas: `src/app/(admin)/projects/[projectId]/vendors/page.tsx`, `src/components/admin/vendor-slot-card.tsx`
     - Fitur: Pemetaan slot vendor per kebutuhan acara pengantin, tombol 1-klik buka WhatsApp untuk undangan Technical Meeting (TM).
 * **Definition of Done (DoD) Sprint 4:**
-  1. Sarah dapat menambahkan vendor ke slot proyek pernikahan pengantin.
+  1. Lead Planner atau Manajemen dapat menambahkan vendor ke slot proyek pernikahan pengantin.
   2. Menekan tombol WhatsApp langsung membuka tautan `https://wa.me/628...` dengan draf teks undangan TM yang sudah memuat nama pengantin, tanggal, jam, dan lokasi venue.
 
 ---
@@ -174,7 +174,7 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
     - Berkas: `src/app/(admin)/projects/[projectId]/rundown/page.tsx`, `src/components/admin/rundown-table.tsx`, `src/components/admin/cue-sheet-badges.tsx`
     - Tampilan: Tabel padat, drag handle icon (`GripVertical`), badge Audio/Lagu (`Headphones`), Lighting (`SunMedium`), MC (`Mic2`), avatar PIC kru, dan dialog edit durasi.
 * **Definition of Done (DoD) Sprint 5:**
-  1. Sarah dapat menerapkan template prosesi Akad Sunda ke proyek pengantin baru dalam 1 klik.
+  1. Lead Planner dapat menerapkan template prosesi Akad Sunda ke proyek pengantin baru dalam 1 klik.
   2. Mengubah durasi sesi Akad dari 60 menit menjadi 75 menit otomatis memajukan jam mulai sesi Sungkeman dan sesi berikutnya sejauh 15 menit secara akurat.
 
 ---
@@ -199,18 +199,18 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
     - Berkas: `src/components/admin/rundown-header-actions.tsx`
     - Tombol: *"Download Guidebook TM (PDF)"* dengan animasi loading saat streaming buffer berlangsung.
 * **Definition of Done (DoD) Sprint 6:**
-  1. Sarah dapat mendata saksi nikah dari pihak pria dan wanita lengkap dengan nomor telepon.
+  1. Lead Planner dapat mendata saksi nikah dari pihak pria dan wanita lengkap dengan nomor telepon.
   2. Mengklik tombol download langsung menghasilkan berkas PDF yang rapi, siap diprint untuk dibagikan kepada vendor saat Technical Meeting.
 
 ---
 
 ## FASE 2: Field Mobility, Client Portal & Financial Automation (P1)
 
-Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offline-first, tautan publik tanpa login untuk Bella & Kevin (Klien), brankas dokumen proyek, serta kalkulator margin profit dan honor kru privat Dimas.
+Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offline-first, tautan publik tanpa login untuk Bella & Kevin (Klien), brankas dokumen proyek, otomasi rekapitulasi honor mingguan oleh Manajemen (Maya), serta kalkulator margin profit privat Dimas (Owner).
 
 ---
 
-### Sprint 7: Tier 1 Bujet Operasional Acara (Sarah & Dimas)
+### Sprint 7: Tier 1 Bujet Operasional Acara (Sarah PM, Maya & Dimas)
 
 * **Tujuan Sprint:** Menyediakan pelacak alokasi bujet pernikahan bersama pengantin dan monitoring status pembayaran vendor tanpa membuka margin dapur kantor.
 * **Daftar Tugas:**
@@ -219,7 +219,7 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
     - Tabel: `project_budgets` (alokasi per kategori), `vendor_invoices` (tagihan rekanan), `payment_milestones` (termin pengantin DP 1, DP 2, Pelunasan).
   - [ ] **Task 7.2: Server Actions Bujet Operasional Acara**
     - Berkas: `src/schemas/budget-schema.ts`, `src/services/budget-service.ts`, `src/actions/budget-actions.ts`
-    - Otorisasi: Khusus role `OWNER` dan `PLANNER`.
+    - Otorisasi: `OWNER`, `MANAGEMENT`, dan `LEAD_PLANNER` proyek.
     - Fungsi: `allocateProjectBudgetAction`, `recordVendorInvoiceAction`, `updatePaymentMilestoneAction`.
   - [ ] **Task 7.3: Desktop UI: Wedding Budget Summary Card**
     - Berkas: `src/app/(admin)/projects/[projectId]/budget/page.tsx`, `src/components/admin/budget-summary-card.tsx`
@@ -282,30 +282,33 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
 
 ---
 
-### Sprint 10: Tier 2 Dapur Finansial & Kalkulator Honor Kru Massal (Dimas Only)
+### Sprint 10: Tier 2A Pencairan Honor Kru & Tier 2B Keuangan Dapur Bisnis (Owner Exclusive)
 
-* **Tujuan Sprint:** Mengamankan dapur bisnis agensi, kalkulasi margin laba bersih/kotor proyek, dan otomasi perhitungan pencairan honor harian puluhan kru lapangan.
+* **Tujuan Sprint:** Mengamankan dapur bisnis agensi, kalkulasi margin laba bersih/kotor proyek, serta otomasi perhitungan pencairan honor harian puluhan kru lapangan oleh Manajemen (Maya) dan Owner (Dimas).
 * **Daftar Tugas:**
-  - [ ] **Task 10.1: Skema Drizzle Tier 2 Keuangan Internal (Migrasi DB)**
+  - [ ] **Task 10.1: Skema Drizzle Tier 2A & 2B Keuangan Internal (Migrasi DB)**
     - Berkas: `src/db/schema/company-finances.ts`
     - Tabel: `company_finances` (1:1 dengan `projects`) dan `crew_payouts`.
-  - [ ] **Task 10.2: Enforce RBAC Guard Khusus Role OWNER**
+  - [ ] **Task 10.2: Enforce RBAC Guard Tier 2A vs Tier 2B**
     - Berkas: `src/services/finance-service.ts`, `src/actions/finance-actions.ts`
-    - Guard: Wajib memanggil `assertRole(session, ["OWNER"])`. Upaya pemanggilan oleh Sarah atau kru langsung ditolak (`403 FORBIDDEN`).
-  - [ ] **Task 10.3: Logika Komputasi Profit & Margin Bisnis**
+    - Guard Tier 2A (Batch Honor Kru): Diizinkan untuk `OWNER` dan `MANAGEMENT`.
+    - Guard Tier 2B (Net Profit Margin & Dividen): Eksklusif `OWNER` (Dimas). Upaya akses oleh Maya atau Sarah/Rian langsung ditolak (`403 FORBIDDEN`).
+  - [ ] **Task 10.3: Logika Kalkulator Batch Payout Honor Kru Mingguan (Tier 2A)**
+    - Formula: $\text{payout} = \text{session\_count} \times \text{daily\_rate}$.
+    - Fitur: Fungsi `executeBatchCrewPayoutAction(projectId, payouts)` mencairkan honor puluhan staf/freelancer secara serentak setiap Senin pagi oleh Maya.
+  - [ ] **Task 10.4: Logika Komputasi Profit & Margin Bisnis (Tier 2B)**
     - Formula:
       $$\text{gross\_profit} = \text{gross\_contract\_price} - \text{vendor\_real\_cost} - \text{crew\_total\_expense}$$
       $$\text{net\_profit\_margin} = \left(\frac{\text{gross\_profit}}{\text{gross\_contract\_price}}\right) \times 100\%$$
-  - [ ] **Task 10.4: Logika Kalkulator Batch Payout Honor Kru Harian**
-    - Formula: $\text{payout} = \text{session\_count} \times \text{daily\_rate}$.
-    - Fitur: Fungsi `executeBatchCrewPayoutAction(projectId, payouts)` mencairkan honor puluhan staf/freelancer secara serentak setiap Minggu malam.
-  - [ ] **Task 10.5: Desktop UI: Dasbor Eksekutif Margin Bisnis & Kalkulator Kru**
-    - Berkas: `src/app/(owner-only)/finance/margins/page.tsx`, `src/app/(owner-only)/finance/crew-honor/page.tsx`, `src/components/admin/profit-metric-cards.tsx`, `src/components/admin/batch-payout-table.tsx`
-    - Tampilan: Kartu ringkasan omzet bruto, total modal vendor riil, total pengeluaran honor kru, net margin persentase, serta tabel multi-select checkbox untuk pencairan honor kru massal.
+  - [ ] **Task 10.5: Desktop UI: Rekapitulasi Honor Kru & Dasbor Eksekutif Margin Bisnis**
+    - Berkas: `src/app/(admin)/payouts/page.tsx`, `src/app/(owner-only)/finance/margins/page.tsx`, `src/components/admin/profit-metric-cards.tsx`, `src/components/admin/batch-payout-table.tsx`
+    - Tampilan:
+      - Halaman Payout (Maya & Dimas): Tabel multi-select checkbox untuk pencairan honor kru massal.
+      - Halaman Eksekutif (Dimas Only): Kartu ringkasan omzet bruto, total modal vendor riil, total pengeluaran honor kru, net margin persentase, dan penarikan dividen.
 * **Definition of Done (DoD) Sprint 10:**
-  1. Dimas dapat melihat margin keuntungan bersih tiap proyek secara privat.
-  2. Sarah atau kru lain yang mencoba mengakses URL `/finance/margins` otomatis menerima pesan akses ditolak.
-  3. Dimas dapat mencentang 15 kru lapangan yang bertugas di akhir pekan dan menekan tombol *"Cairkan Honor Terpilih"* dalam satu aksi transaksi database.
+  1. Maya dapat mencentang seluruh kru yang bertugas di akhir pekan dan menekan tombol *"Cairkan Honor Terpilih"* pada hari Senin pagi.
+  2. Dimas dapat melihat margin keuntungan bersih tiap proyek secara privat tanpa bisa diakses Maya atau kru.
+  3. Sarah atau kru lain yang mencoba mengakses URL `/finance/margins` otomatis menerima pesan akses ditolak.
 
 ---
 
