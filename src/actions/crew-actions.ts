@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { assertRole } from "@/lib/auth-guard";
+import { assertRole, assertProjectLeadAccess } from "@/lib/auth-guard";
 import { getSession } from "@/lib/auth";
 import {
   assignCrewToProject,
@@ -35,7 +35,7 @@ export async function assignCrewAction(
   input: AssignCrewInput
 ): Promise<ActionResponse<CrewAssignmentDTO>> {
   const session = await getSession();
-  const auth = assertRole(session, ["OWNER", "PLANNER"]);
+  const auth = await assertProjectLeadAccess(session, input.projectId);
   if (!auth.success) return auth;
 
   const parsed = AssignCrewSchema.safeParse(input);
@@ -63,7 +63,7 @@ export async function removeCrewAction(
   input: RemoveCrewInput
 ): Promise<ActionResponse<{ deletedId: string }>> {
   const session = await getSession();
-  const auth = assertRole(session, ["OWNER", "PLANNER"]);
+  const auth = await assertProjectLeadAccess(session, input.projectId);
   if (!auth.success) return auth;
 
   const parsed = RemoveCrewSchema.safeParse(input);
@@ -97,7 +97,7 @@ export async function getAvailableCrewUsersAction(
   targetProjectId?: string
 ): Promise<ActionResponse<CrewUserAvailabilityDTO[]>> {
   const session = await getSession();
-  const auth = assertRole(session, ["OWNER", "PLANNER"]);
+  const auth = assertRole(session, ["OWNER", "MANAGEMENT", "CREW"]);
   if (!auth.success) return auth;
 
   try {
@@ -128,7 +128,7 @@ export async function getAvailableCrewUsersAction(
       success: false,
       error: {
         code: "BAD_REQUEST",
-        message: "Gagal mengambil daftar ketersediaan kru.",
+        message: "Gagal memeriksa ketersediaan staf kru.",
         details: err instanceof Error ? err.message : String(err),
       },
     };

@@ -1,4 +1,4 @@
-export type GlobalRole = "OWNER" | "PLANNER" | "CREW";
+export type GlobalRole = "OWNER" | "MANAGEMENT" | "CREW";
 
 export interface UserSession {
   userId: string;

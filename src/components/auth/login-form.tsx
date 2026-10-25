@@ -160,7 +160,7 @@ export function LoginForm() {
           <UserCheck className="w-3.5 h-3.5" />
           <span>Isi Cepat Akun Demo (Testing):</span>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => handleQuickFill("dimas@altara.id", "Dimas (Owner)")}
@@ -170,14 +170,21 @@ export function LoginForm() {
           </button>
           <button
             type="button"
-            onClick={() => handleQuickFill("sarah@altara.id", "Sarah (Planner)")}
+            onClick={() => handleQuickFill("maya@altara.id", "Maya (Management)")}
             className="text-xs py-1.5 px-2 rounded-md bg-secondary/80 hover:bg-secondary text-secondary-foreground border border-border/50 text-center font-medium transition-colors"
           >
-            Sarah (Planner)
+            Maya (Management)
           </button>
           <button
             type="button"
-            onClick={() => handleQuickFill("rian@altara.id", "Rian (Crew)")}
+            onClick={() => handleQuickFill("sarah@altara.id", "Sarah (Lead Planner/Crew)")}
+            className="text-xs py-1.5 px-2 rounded-md bg-secondary/80 hover:bg-secondary text-secondary-foreground border border-border/50 text-center font-medium transition-colors"
+          >
+            Sarah (PM/Crew)
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickFill("rian@altara.id", "Rian (Kru Lapangan)")}
             className="text-xs py-1.5 px-2 rounded-md bg-secondary/80 hover:bg-secondary text-secondary-foreground border border-border/50 text-center font-medium transition-colors"
           >
             Rian (Kru)

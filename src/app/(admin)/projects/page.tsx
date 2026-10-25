@@ -47,7 +47,7 @@ export default async function ProjectsPage() {
     CANCELLED: "Dibatalkan",
   };
 
-  const canCreate = session?.role === "OWNER" || session?.role === "PLANNER";
+  const canCreate = session?.role === "OWNER" || session?.role === "MANAGEMENT";
 
   return (
     <div className="flex flex-col gap-6">

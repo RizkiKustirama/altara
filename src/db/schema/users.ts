@@ -3,8 +3,9 @@ import { relations } from "drizzle-orm";
 import { projectCrews } from "./project-crews";
 import { sacredBelongings, projectDocuments } from "./supporting-phase2";
 import { crewPayouts } from "./company-finances";
+import { projects } from "./projects";
 
-export const userRoleEnum = pgEnum("user_role", ["OWNER", "PLANNER", "CREW"]);
+export const userRoleEnum = pgEnum("user_role", ["OWNER", "MANAGEMENT", "CREW"]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -20,6 +21,7 @@ export const users = pgTable("users", {
 
 export const usersRelations = relations(users, ({ many }) => ({
   projectAssignments: many(projectCrews),
+  leadProjects: many(projects),
   heldLogistics: many(sacredBelongings),
   uploadedDocuments: many(projectDocuments),
   payouts: many(crewPayouts),

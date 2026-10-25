@@ -1,5 +1,6 @@
 import { pgTable, uuid, text, date, numeric, timestamp, pgEnum, uniqueIndex } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { users } from "./users";
 import { servicePackages } from "./supporting-phase2";
 import { projectCrews } from "./project-crews";
 import { projectVendors } from "./vendors";
@@ -23,6 +24,7 @@ export const projects = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     packageId: uuid("package_id").references(() => servicePackages.id, { onDelete: "set null" }),
+    leadPlannerId: uuid("lead_planner_id").references(() => users.id, { onDelete: "set null" }),
     projectName: text("project_name").notNull(),
     clientGroomName: text("client_groom_name").notNull(),
     clientBrideName: text("client_bride_name").notNull(),
@@ -30,7 +32,7 @@ export const projects = pgTable(
     venueName: text("venue_name").notNull(),
     venueAddress: text("venue_address"),
     
-    // Plafon Anggaran Operasional (Tier 1: Terbuka untuk Sarah & Dimas)
+    // Plafon Anggaran Operasional (Tier 1: Terbuka untuk Lead Planner, Management, & Owner)
     contractAmount: numeric("contract_amount", { precision: 12, scale: 2 }).notNull().default("0"),
     
     // Tautan publik instan tanpa login (Bella & Kevin)
@@ -47,6 +49,7 @@ export const projects = pgTable(
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   package: one(servicePackages, { fields: [projects.packageId], references: [servicePackages.id] }),
+  leadPlanner: one(users, { fields: [projects.leadPlannerId], references: [users.id] }),
   crews: many(projectCrews),
   vendors: many(projectVendors),
   rundowns: many(projectRundowns),

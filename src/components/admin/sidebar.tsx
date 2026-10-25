@@ -10,6 +10,7 @@ import {
   LogOut,
   Sparkles,
   Building2,
+  Wallet,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,31 +29,37 @@ export function Sidebar({ user }: SidebarProps) {
       label: "Kalender Operasional",
       href: "/dashboard",
       icon: Calendar,
-      roles: ["OWNER", "PLANNER", "CREW"],
+      roles: ["OWNER", "MANAGEMENT", "CREW"],
     },
     {
       label: "Proyek Pernikahan",
       href: "/projects",
       icon: Briefcase,
-      roles: ["OWNER", "PLANNER", "CREW"],
+      roles: ["OWNER", "MANAGEMENT", "CREW"],
     },
     {
       label: "Direktori Rekanan",
       href: "/vendors",
       icon: Building2,
-      roles: ["OWNER", "PLANNER"],
+      roles: ["OWNER", "MANAGEMENT"],
     },
     {
       label: "Skuad & Kru",
       href: "/projects",
       icon: Users,
-      roles: ["OWNER", "PLANNER"],
+      roles: ["OWNER", "MANAGEMENT"],
+    },
+    {
+      label: "Honor Kru Mingguan",
+      href: "/payouts",
+      icon: Wallet,
+      roles: ["OWNER", "MANAGEMENT"], // Tier 2A: Maya & Dimas
     },
     {
       label: "Dapur Finansial",
       href: "/finances",
       icon: DollarSign,
-      roles: ["OWNER"], // Tier 2: Eksklusif Dimas (Owner)
+      roles: ["OWNER"], // Tier 2B: Eksklusif Dimas (Owner)
     },
   ];
 
@@ -60,8 +67,8 @@ export function Sidebar({ user }: SidebarProps) {
 
   const roleLabelMap: Record<string, string> = {
     OWNER: "Owner",
-    PLANNER: "Planner",
-    CREW: "Kru Lapangan",
+    MANAGEMENT: "Manajemen",
+    CREW: "Staf Kru",
   };
 
   return (
@@ -100,51 +107,42 @@ export function Sidebar({ user }: SidebarProps) {
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{item.label}</span>
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      {/* User Profile Pill & Sign Out */}
-      <div className="flex flex-col gap-3 pt-4 border-t border-border/60">
+      {/* User Session Footprint & Logout */}
+      <div className="flex flex-col gap-3 pt-4 border-t border-border/70">
         <div className="flex items-center justify-between px-2">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-200 text-stone-800 text-xs font-semibold shrink-0">
-              {user.fullName.slice(0, 2).toUpperCase()}
-            </div>
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-xs font-medium text-foreground truncate">
-                {user.fullName}
-              </span>
-              <span className="text-[10px] text-muted-foreground truncate">
-                {user.email}
-              </span>
-            </div>
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-xs font-semibold text-foreground truncate">
+              {user.fullName}
+            </span>
+            <span className="text-[11px] text-muted-foreground truncate">
+              {user.email}
+            </span>
           </div>
           <Badge
             variant="outline"
-            className="text-[10px] uppercase font-mono px-1.5 py-0.5 border-border"
+            className="text-[10px] uppercase font-mono tracking-wider"
           >
             {roleLabelMap[user.role] ?? user.role}
           </Badge>
         </div>
 
-        <form
-          action={async () => {
-            await logoutAction();
-          }}
-        >
+        <form action={async () => { await logoutAction(); }}>
           <Button
             type="submit"
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
+            className="w-full justify-start text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2 font-normal"
           >
             <LogOut className="h-3.5 w-3.5" />
-            Keluar Akun
+            <span>Keluar Akun</span>
           </Button>
         </form>
       </div>

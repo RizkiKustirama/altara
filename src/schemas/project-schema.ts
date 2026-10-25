@@ -11,6 +11,7 @@ export const projectStatusEnumSchema = z.enum([
 
 export const CreateProjectSchema = z.object({
   packageId: z.string().uuid("Format ID paket tidak valid").optional(),
+  leadPlannerId: z.string().uuid("Format ID Lead Planner tidak valid").optional().nullable(),
   projectName: z.string().min(3, "Nama proyek minimal 3 karakter"),
   clientGroomName: z.string().min(2, "Nama pengantin pria wajib diisi"),
   clientBrideName: z.string().min(2, "Nama pengantin wanita wajib diisi"),

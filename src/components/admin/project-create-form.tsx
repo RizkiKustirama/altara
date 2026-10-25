@@ -8,9 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { createProjectAction } from "@/actions/project-actions";
 import { CreateProjectSchema } from "@/schemas/project-schema";
-import { Sparkles, Calendar, MapPin, Building, Users } from "lucide-react";
+import { Sparkles, Calendar, MapPin, Building, Users, UserCheck } from "lucide-react";
 
-export function ProjectCreateForm() {
+interface ProjectCreateFormProps {
+  availablePlanners?: Array<{ id: string; fullName: string; role: string }>;
+}
+
+export function ProjectCreateForm({ availablePlanners = [] }: ProjectCreateFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -22,11 +26,12 @@ export function ProjectCreateForm() {
     venueName: "",
     venueAddress: "",
     contractAmount: 0,
+    leadPlannerId: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -56,7 +61,12 @@ export function ProjectCreateForm() {
     setLoading(true);
     setErrors({});
 
-    const parsed = CreateProjectSchema.safeParse(formData);
+    const payload = {
+      ...formData,
+      leadPlannerId: formData.leadPlannerId || undefined,
+    };
+
+    const parsed = CreateProjectSchema.safeParse(payload);
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       parsed.error.errors.forEach((err) => {
@@ -96,7 +106,7 @@ export function ProjectCreateForm() {
             Informasi Pernikahan Pengantin
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Lengkapi data dasar pengantin, tanggal acara, dan lokasi venue pernikahan.
+            Lengkapi data dasar pengantin, tanggal acara, penunjukan Lead Planner, dan lokasi venue.
           </p>
         </div>
 
@@ -216,9 +226,39 @@ export function ProjectCreateForm() {
               </span>
             )}
             <span className="text-[10px] text-muted-foreground">
-              Tier 1 Plafon: Terbuka untuk Sarah & Dimas (Dirahasiakan dari Kru)
+              Tier 1 Plafon: Terbuka untuk Lead Planner, Management, & Owner.
             </span>
           </div>
+        </div>
+
+        {/* Penunjukan Lead Planner (PM Proyek) */}
+        <div className="flex flex-col gap-1.5 pt-2 border-t border-border/60">
+          <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <UserCheck className="h-3.5 w-3.5 text-stone-500" />
+              <span>Tunjuk Lead Planner / Project Manager (PM)</span>
+            </span>
+            <span className="text-[11px] text-muted-foreground font-normal">
+              Opsional (Dapat ditunjuk kemudian)
+            </span>
+          </label>
+          <select
+            name="leadPlannerId"
+            value={formData.leadPlannerId}
+            onChange={handleChange}
+            disabled={loading}
+            className="flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground"
+          >
+            <option value="">-- Pilih Staf Penanggung Jawab Proyek --</option>
+            {availablePlanners.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.fullName} ({p.role})
+              </option>
+            ))}
+          </select>
+          <span className="text-[10px] text-muted-foreground">
+            Lead Planner akan mendapatkan wewenang manajerial penuh pada proyek ini (rundown, vendor, skuad, & bujet).
+          </span>
         </div>
 
         {/* Venue Information */}

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { projects, projectCrews } from "@/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
+import { eq, desc, inArray, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { assertRole, assertProjectAccess } from "@/lib/auth-guard";
@@ -20,6 +20,8 @@ export interface ProjectItemDTO {
   venueAddress: string | null;
   status: string;
   publicToken: string;
+  leadPlannerId?: string | null;
+  leadPlannerName?: string | null;
   contractAmount?: number;
   crewCount: number;
   createdAt: string;
@@ -35,7 +37,9 @@ export interface ProjectOverviewDTO {
   venueAddress: string | null;
   status: string;
   publicToken: string;
-  contractAmount?: number; // Eksklusif OWNER & PLANNER (disembunyikan dari CREW)
+  leadPlannerId?: string | null;
+  leadPlannerName?: string | null;
+  contractAmount?: number; // Terbuka untuk OWNER, MANAGEMENT, dan LEAD_PLANNER proyek ini
   crewCount: number;
   vendorCount: number;
 }
@@ -44,7 +48,7 @@ export async function createProjectAction(
   input: CreateProjectInput
 ): Promise<ActionResponse<{ id: string; publicToken: string; projectName: string }>> {
   const session = await getSession();
-  const auth = assertRole(session, ["OWNER", "PLANNER"]);
+  const auth = assertRole(session, ["OWNER", "MANAGEMENT"]);
   if (!auth.success) return auth;
 
   const parsed = CreateProjectSchema.safeParse(input);
@@ -73,6 +77,7 @@ export async function createProjectAction(
         venueAddress: parsed.data.venueAddress ?? null,
         contractAmount: String(parsed.data.contractAmount),
         packageId: parsed.data.packageId ?? null,
+        leadPlannerId: parsed.data.leadPlannerId ?? null,
         publicToken,
         status: "PLANNING",
       })
@@ -86,6 +91,19 @@ export async function createProjectAction(
           message: "Gagal menyimpan proyek ke database.",
         },
       };
+    }
+
+    // Jika Lead Planner langsung ditunjuk saat registrasi, daftarkan otomatis ke project_crews
+    if (parsed.data.leadPlannerId) {
+      await db
+        .insert(projectCrews)
+        .values({
+          projectId: newProject.id,
+          userId: parsed.data.leadPlannerId,
+          eventDate: newProject.weddingDate,
+          roleInProject: "LEAD_PLANNER",
+        })
+        .onConflictDoNothing();
     }
 
     revalidatePath("/dashboard");
@@ -127,50 +145,60 @@ export async function getProjectsAction(): Promise<ActionResponse<ProjectItemDTO
     let projectList;
 
     if (session.role === "CREW") {
-      // Kru hanya dapat melihat proyek di mana mereka ditugaskan
+      // Kru dapat melihat proyek jika ditugaskan sebagai staf ATAU ditunjuk sebagai Lead Planner
       const assigned = await db.query.projectCrews.findMany({
         where: eq(projectCrews.userId, session.userId),
         columns: { projectId: true },
       });
 
-      const projectIds = assigned.map((a) => a.projectId);
-      if (projectIds.length === 0) {
-        return { success: true, data: [] };
-      }
+      const assignedProjectIds = assigned.map((a) => a.projectId);
 
       projectList = await db.query.projects.findMany({
-        where: inArray(projects.id, projectIds),
+        where: or(
+          eq(projects.leadPlannerId, session.userId),
+          assignedProjectIds.length > 0 ? inArray(projects.id, assignedProjectIds) : undefined
+        ),
         with: {
           crews: { columns: { id: true } },
+          leadPlanner: { columns: { fullName: true } },
         },
         orderBy: [desc(projects.weddingDate)],
       });
     } else {
-      // OWNER & PLANNER melihat seluruh proyek
+      // OWNER & MANAGEMENT melihat seluruh proyek
       projectList = await db.query.projects.findMany({
         with: {
           crews: { columns: { id: true } },
+          leadPlanner: { columns: { fullName: true } },
         },
         orderBy: [desc(projects.weddingDate)],
       });
     }
 
-    const result: ProjectItemDTO[] = projectList.map((p) => ({
-      id: p.id,
-      projectName: p.projectName,
-      clientGroomName: p.clientGroomName,
-      clientBrideName: p.clientBrideName,
-      weddingDate: p.weddingDate,
-      venueName: p.venueName,
-      venueAddress: p.venueAddress,
-      status: p.status,
-      publicToken: p.publicToken,
-      // Privasi finansial: contractAmount disembunyikan untuk role CREW
-      contractAmount:
-        session.role === "CREW" ? undefined : Number(p.contractAmount),
-      crewCount: p.crews.length,
-      createdAt: p.createdAt.toISOString(),
-    }));
+    const result: ProjectItemDTO[] = projectList.map((p) => {
+      const isLeadOrManagement =
+        session.role === "OWNER" ||
+        session.role === "MANAGEMENT" ||
+        p.leadPlannerId === session.userId;
+
+      return {
+        id: p.id,
+        projectName: p.projectName,
+        clientGroomName: p.clientGroomName,
+        clientBrideName: p.clientBrideName,
+        weddingDate: p.weddingDate,
+        venueName: p.venueName,
+        venueAddress: p.venueAddress,
+        status: p.status,
+        publicToken: p.publicToken,
+        leadPlannerId: p.leadPlannerId,
+        leadPlannerName: p.leadPlanner?.fullName ?? null,
+        // Privasi finansial: contractAmount hanya terlihat oleh Owner, Management, dan Lead Planner proyek ini
+        contractAmount: isLeadOrManagement ? Number(p.contractAmount) : undefined,
+        crewCount: p.crews.length,
+        createdAt: p.createdAt.toISOString(),
+      };
+    });
 
     return { success: true, data: result };
   } catch (err: unknown) {
@@ -198,6 +226,7 @@ export async function getProjectOverviewAction(
       with: {
         crews: { columns: { id: true } },
         vendors: { columns: { id: true } },
+        leadPlanner: { columns: { fullName: true } },
       },
     });
 
@@ -211,6 +240,11 @@ export async function getProjectOverviewAction(
       };
     }
 
+    const isLeadOrManagement =
+      session?.role === "OWNER" ||
+      session?.role === "MANAGEMENT" ||
+      project.leadPlannerId === session?.userId;
+
     return {
       success: true,
       data: {
@@ -223,8 +257,9 @@ export async function getProjectOverviewAction(
         venueAddress: project.venueAddress,
         status: project.status,
         publicToken: project.publicToken,
-        contractAmount:
-          session?.role === "CREW" ? undefined : Number(project.contractAmount),
+        leadPlannerId: project.leadPlannerId,
+        leadPlannerName: project.leadPlanner?.fullName ?? null,
+        contractAmount: isLeadOrManagement ? Number(project.contractAmount) : undefined,
         crewCount: project.crews.length,
         vendorCount: project.vendors.length,
       },

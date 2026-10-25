@@ -15,9 +15,10 @@ async function runProjectActionContractTests() {
   }
   console.log("✅ Public token generated matching contract:", publicToken);
 
-  // 2. Verify CreateProject validation pipeline in Action
+  // 2. Verify CreateProject validation pipeline in Action (with leadPlannerId)
   const validCreatePayload = {
     projectName: "The Wedding of Bella & Kevin",
+    leadPlannerId: "123e4567-e89b-12d3-a456-426614174099",
     clientGroomName: "Kevin Sanjaya",
     clientBrideName: "Bella Clarissa",
     weddingDate: "2026-10-24",
@@ -28,7 +29,7 @@ async function runProjectActionContractTests() {
   if (!parseCreate.success) {
     throw new Error("Validation pipeline rejected valid project payload");
   }
-  console.log("✅ Project creation schema validated for Action input");
+  console.log("✅ Project creation schema validated for Action input (including leadPlannerId)");
 
   // 3. Verify AssignCrew validation pipeline in Action
   const validAssignPayload = {

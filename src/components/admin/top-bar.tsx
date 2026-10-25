@@ -19,7 +19,7 @@ export function TopBar({ user }: TopBarProps) {
     year: "numeric",
   }).format(today);
 
-  const canCreate = user.role === "OWNER" || user.role === "PLANNER";
+  const canCreate = user.role === "OWNER" || user.role === "MANAGEMENT";
 
   return (
     <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-border/70 bg-background/95 px-4 backdrop-blur sm:px-6">

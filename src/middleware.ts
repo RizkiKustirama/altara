@@ -24,9 +24,8 @@ export async function middleware(request: NextRequest) {
   // 3. Penanganan rute login (/login)
   if (pathname === "/login") {
     if (session) {
-      // Jika pengguna sudah memiliki sesi aktif, arahkan ke dasbor yang sesuai
-      const targetUrl = session.role === "CREW" ? "/field" : "/dashboard";
-      return NextResponse.redirect(new URL(targetUrl, request.url));
+      // Jika pengguna sudah memiliki sesi aktif, arahkan ke dashboard
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
     return NextResponse.next();
   }
@@ -40,12 +39,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 5. Proteksi Rute Eksklusif Owner (Tier 2 Keuangan Internal Dapur Bisnis)
-  // Menolak akses jika diakses oleh role PLANNER (Sarah) atau CREW (Rian)
+  // 5. Proteksi Rute Eksklusif Owner (Tier 2B Keuangan Internal Dapur Bisnis & Margin)
   if (
     pathname.startsWith("/finance") ||
-    pathname.startsWith("/margins") ||
-    pathname.startsWith("/crew-honor")
+    pathname.startsWith("/margins")
   ) {
     if (session.role !== "OWNER") {
       // Alihkan non-owner ke dashboard operasional utama
@@ -53,16 +50,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 6. Proteksi Rute Kantor Desktop (/dashboard, /projects, /vendors, /templates)
-  // Kru lapangan (Rian) diarahkan langsung ke tampilan mobile /field
-  if (
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/projects") ||
-    pathname.startsWith("/vendors") ||
-    pathname.startsWith("/templates")
-  ) {
-    if (session.role === "CREW") {
-      return NextResponse.redirect(new URL("/field", request.url));
+  // 6. Proteksi Rute Pencairan Honor Kru Mingguan (Tier 2A: OWNER & MANAGEMENT)
+  if (pathname.startsWith("/payouts")) {
+    if (session.role !== "OWNER" && session.role !== "MANAGEMENT") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 

@@ -17,9 +17,11 @@ export async function runSeed() {
   const saltRounds = 10;
   const defaultPasswordHash = await bcrypt.hash("password123", saltRounds);
 
-  // 1. Seed Default Users
-  console.log("👉 Seeding default users (Dimas, Sarah, Rian)...");
-  const [dimas] = await db
+  // 1. Seed Default Users (Dimas, Maya, Sarah, Rian)
+  console.log("👉 Seeding default users (Dimas, Maya, Sarah, Rian)...");
+
+  // Dimas - OWNER
+  await db
     .insert(users)
     .values({
       fullName: "Dimas Pratama",
@@ -29,23 +31,45 @@ export async function runSeed() {
       role: "OWNER",
       isActive: true,
     })
-    .onConflictDoNothing()
-    .returning();
+    .onConflictDoUpdate({
+      target: users.email,
+      set: { role: "OWNER", fullName: "Dimas Pratama", passwordHash: defaultPasswordHash },
+    });
 
-  const [sarah] = await db
+  // Maya - MANAGEMENT
+  await db
+    .insert(users)
+    .values({
+      fullName: "Maya Anggraini",
+      email: "maya@altara.id",
+      phone: "081234567899",
+      passwordHash: defaultPasswordHash,
+      role: "MANAGEMENT",
+      isActive: true,
+    })
+    .onConflictDoUpdate({
+      target: users.email,
+      set: { role: "MANAGEMENT", fullName: "Maya Anggraini", passwordHash: defaultPasswordHash },
+    });
+
+  // Sarah - CREW (Lead Planner PM)
+  await db
     .insert(users)
     .values({
       fullName: "Sarah Paramita",
       email: "sarah@altara.id",
       phone: "081234567891",
       passwordHash: defaultPasswordHash,
-      role: "PLANNER",
+      role: "CREW",
       isActive: true,
     })
-    .onConflictDoNothing()
-    .returning();
+    .onConflictDoUpdate({
+      target: users.email,
+      set: { role: "CREW", fullName: "Sarah Paramita", passwordHash: defaultPasswordHash },
+    });
 
-  const [rian] = await db
+  // Rian - CREW (Field Staff)
+  await db
     .insert(users)
     .values({
       fullName: "Rian Hidayat",
@@ -55,13 +79,16 @@ export async function runSeed() {
       role: "CREW",
       isActive: true,
     })
-    .onConflictDoNothing()
-    .returning();
+    .onConflictDoUpdate({
+      target: users.email,
+      set: { role: "CREW", fullName: "Rian Hidayat", passwordHash: defaultPasswordHash },
+    });
 
   console.log("✅ Users seeded:", {
-    owner: dimas?.email ?? "dimas@altara.id (existing)",
-    planner: sarah?.email ?? "sarah@altara.id (existing)",
-    crew: rian?.email ?? "rian@altara.id (existing)",
+    owner: "dimas@altara.id",
+    management: "maya@altara.id",
+    leadPlannerCrew: "sarah@altara.id",
+    fieldCrew: "rian@altara.id",
   });
 
   // 2. Seed Service Packages
