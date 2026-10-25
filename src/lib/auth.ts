@@ -1,10 +1,14 @@
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
-import { signSessionToken, verifySessionToken } from "./session";
+import {
+  signSessionToken,
+  verifySessionToken,
+  SESSION_COOKIE_NAME,
+  SESSION_DURATION_MS,
+} from "./session";
 import type { UserSession } from "@/types/auth";
 
-export const SESSION_COOKIE_NAME = "altara_session";
-export const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 7; // 7 hari
+export { SESSION_COOKIE_NAME, SESSION_DURATION_MS };
 
 /**
  * Mendapatkan sesi pengguna yang sedang aktif dari cookie request.

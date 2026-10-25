@@ -1,5 +1,8 @@
 import type { UserSession } from "@/types/auth";
 
+export const SESSION_COOKIE_NAME = "altara_session";
+export const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 7; // 7 hari
+
 const SESSION_SECRET =
   process.env.AUTH_SECRET || "super-secret-altara-session-key-for-development-32chars";
 
