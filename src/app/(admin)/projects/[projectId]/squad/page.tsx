@@ -6,6 +6,7 @@ import { CrewAssignmentDrawer } from "@/components/admin/crew-assignment-drawer"
 import { CrewListTable } from "@/components/admin/crew-list-table";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Calendar,
@@ -107,6 +108,29 @@ export default async function ProjectSquadPage({ params }: SquadPageProps) {
               /portal/{project.publicToken}
             </code>
           </div>
+        </div>
+
+        {/* Sub-Navigation Tabs */}
+        <div className="flex items-center gap-2 pt-4 border-t border-border/60 mt-4">
+          <Button
+            variant="default"
+            size="sm"
+            className="text-xs bg-stone-900 text-stone-50 hover:bg-stone-800 gap-1.5"
+          >
+            <Users className="h-3.5 w-3.5" />
+            <span>Skuad & Kru ({crews.length})</span>
+          </Button>
+
+          <Link href={`/projects/${project.id}/vendors`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground gap-1.5"
+            >
+              <Building className="h-3.5 w-3.5" />
+              <span>Rekanan Vendor ({project.vendorCount})</span>
+            </Button>
+          </Link>
         </div>
       </Card>
 
