@@ -78,22 +78,26 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
 ### Sprint 2: Autentikasi Internal, Sesi Cookie & Guard Otorisasi
 
 * **Tujuan Sprint:** Mengamankan sistem dengan modul login internal kantor, sesi cookie aman (`HttpOnly`), middleware rute, dan guard otorisasi Server Actions.
+* **Status:** ✅ **SELESAI (Committed & Pushed to GitHub)**
 * **Daftar Tugas:**
-  - [ ] **Task 2.1: Standarisasi Format Respons (*Envelope Pattern*)**
+  - [x] **Task 2.1: Standarisasi Format Respons (*Envelope Pattern*)**
     - Berkas: `src/types/action-response.ts`, `src/types/auth.ts`
-    - Tipe: `ActionResponse<T>`, `ActionError`, dan enum `ErrorCode` (`UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT_SCHEDULE`, `VALIDATION_ERROR`, `BAD_REQUEST`).
-  - [ ] **Task 2.2: Implementasi Modul Sesi Autentikasi (Password Hashing & Cookie)**
-    - Berkas: `src/lib/auth.ts`, `src/actions/auth-actions.ts`, `src/schemas/auth-schema.ts`
-    - Mekanisme: Password hashing menggunakan `bcryptjs`/`argon2`, session cookie beratribut `HttpOnly; Secure; SameSite=Lax`.
-  - [ ] **Task 2.3: Helper Guard Otorisasi Server Actions**
-    - Berkas: `src/lib/auth-guard.ts`
-    - Fungsi: `assertRole(session, allowedRoles)` dan `assertProjectAccess(session, projectId)`.
-  - [ ] **Task 2.4: Middleware Proteksi Rute Next.js**
+    - Commit: `d3e07d6` (`feat(auth): define ActionResponse and UserSession error contracts (Task 2.1)`)
+  - [x] **Task 2.2: Implementasi Modul Sesi Autentikasi (Password Hashing & Cookie)**
+    - Berkas: `src/lib/session.ts`, `src/lib/auth.ts`, `tests/auth/session.test.ts`
+    - Commit: `11fa13b` (`feat(auth): implement Web Crypto HMAC session signing and cookie helper (Task 2.2)`)
+  - [x] **Task 2.3: Skema Zod & Server Actions Autentikasi**
+    - Berkas: `src/schemas/auth-schema.ts`, `src/actions/auth-actions.ts`, `tests/auth/login-action.test.ts`
+    - Commit: `f768dd1` (`feat(auth): implement login, logout, and getCurrentUser Server Actions (Task 2.3)`)
+  - [x] **Task 2.4: Helper Guard Otorisasi Server Actions & Project Access**
+    - Berkas: `src/lib/auth-guard.ts`, `tests/auth/auth-guard.test.ts`
+    - Commit: `fc04080` (`feat(auth): implement assertRole and assertProjectAccess guards (Task 2.4)`)
+  - [x] **Task 2.5: Middleware Proteksi Rute Next.js**
     - Berkas: `src/middleware.ts`
-    - Aturan rute: Rute `(owner-only)/*` diblokir total jika bukan role `OWNER`; Rute `(admin)/*` wajib sesi aktif `OWNER` atau `PLANNER`; Rute publik `/portal/*` dilepas tanpa autentikasi.
-  - [ ] **Task 2.5: UI Halaman Login Internal**
-    - Berkas: `src/app/(auth)/login/page.tsx`, `src/components/auth/login-form.tsx`
-    - Fitur: Form login Shadcn UI dengan validasi Zod klien, tombol submit berstatus loading, dan feedback toast error.
+    - Commit: `e0d360b` (`feat(auth): implement Next.js route protection middleware (Task 2.5)`)
+  - [x] **Task 2.6: UI Halaman & Form Login Internal (Sprig Minimalist)**
+    - Berkas: `src/app/(auth)/login/page.tsx`, `src/components/auth/login-form.tsx`, `src/app/(auth)/layout.tsx`
+    - Commit: `0c41e04` (`feat(auth): build responsive login UI page with demo credentials picker (Task 2.6)`)
 * **Definition of Done (DoD) Sprint 2:**
   1. Pengguna dapat login dengan akun Dimas, Sarah, dan Rian lalu diarahkan ke dashboard masing-masing.
   2. Akses ke URL `(owner-only)` oleh Sarah atau Rian otomatis terlempar ke 403 atau dialihkan (*redirect*).
