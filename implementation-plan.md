@@ -237,24 +237,24 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
 
 * **Tujuan Sprint:** Membangun aplikasi mobile ramah jempol (touch targets $\ge 44\text{ px}$) dengan Service Worker offline-caching untuk kru lapangan hari-H.
 * **Daftar Tugas:**
-  - [ ] **Task 8.1: Setup Manifest PWA & Service Worker Offline Caching**
-    - Berkas: `public/manifest.json`, `public/icons/*`, `src/app/sw.ts` (atau `@serwist/next`)
+  - [x] **Task 8.1: Setup Manifest PWA & Service Worker Offline Caching**
+    - Berkas: `public/manifest.json`, `public/icons/*`, `public/sw.js`, `src/components/mobile/pwa-register.tsx`
     - Cache strategy: Stale-While-Revalidate untuk aset statis dan Network-First with Cache-Fallback untuk data rundown & kontak.
-  - [ ] **Task 8.2: Shell Layout Mobile & Bottom Tab Bar**
-    - Berkas: `src/app/(mobile)/layout.tsx`, `src/app/(mobile)/field/[projectId]/layout.tsx`, `src/components/mobile/bottom-tab-bar.tsx`
-    - Ergonomi: Navigasi 4 tab bawah (Home, Rundown, Logistik, Kontak) dengan tinggi sentuh minimal 44 piksel.
-  - [ ] **Task 8.3: UI Live Rundown Cards ("Now Running" & "Up Next")**
-    - Berkas: `src/app/(mobile)/field/[projectId]/rundown/page.tsx`, `src/components/mobile/live-rundown-card.tsx`
-    - Tampilan: Kartu ber-border tebal dengan animasi pulse untuk sesi yang sedang berjalan, dan hitung mundur menit untuk sesi berikutnya.
-  - [ ] **Task 8.4: Pelacak Logistik Barang Sakral (*Sacred Belongings Tracker*)**
-    - Berkas: `src/db/schema/supporting-phase2.ts` (`sacred_belongings`), `src/actions/logistics-actions.ts`, `src/app/(mobile)/field/[projectId]/logistics/page.tsx`, `src/components/mobile/sacred-item-card.tsx`
-    - Fitur: Checklist posisi fisik kotak cincin, mahar, dan gaun ganti dengan toggle status instan: `[Belum Diterima] -> [Pegang Kru] -> [Di Meja Akad] -> [Diserahkan ke Keluarga]`.
-  - [ ] **Task 8.5: Slide-Up Quick Speed-Dial Sheet**
-    - Berkas: `src/components/mobile/emergency-dial-sheet.tsx`
-    - Fitur: Drawer geser bawah menampilkan nomor telepon penting (PIC Katering, PIC Sound, Orang Tua) dengan tombol 1-tap Call (`tel:...`) dan WhatsApp (`wa.me`).
-  - [ ] **Task 8.6: Indikator Status Koneksi Offline**
+  - [x] **Task 8.2: Shell Layout Mobile & Bottom Tab Bar**
+    - Berkas: `src/app/(mobile)/layout.tsx`, `src/app/(mobile)/field/[projectId]/layout.tsx`, `src/app/(mobile)/field/[projectId]/page.tsx`, `src/components/mobile/bottom-tab-bar.tsx`
+    - Ergonomi: Navigasi 4 tab bawah (Ikhtisar, Rundown, Logistik, Kontak) dengan tinggi sentuh minimal 48 piksel.
+  - [x] **Task 8.3: UI Live Rundown Cards ("Now Running" & "Up Next")**
+    - Berkas: `src/app/(mobile)/field/[projectId]/rundown/page.tsx`, `src/components/mobile/live-rundown-card.tsx`, `src/components/mobile/rundown-list-client.tsx`, `src/actions/rundown-actions.ts`
+    - Tampilan: Kartu ber-border tebal dengan animasi pulse untuk sesi yang sedang berjalan, petunjuk audio-visual expandable, dan kontrol toggle status instan kru.
+  - [x] **Task 8.4: Pelacak Logistik Barang Sakral (*Sacred Belongings Tracker*)**
+    - Berkas: `src/db/schema/supporting-phase2.ts` (`sacred_belongings`), `src/schemas/logistics-schema.ts`, `src/services/logistics-service.ts`, `src/actions/logistics-actions.ts`, `src/app/(mobile)/field/[projectId]/logistics/page.tsx`, `src/components/mobile/sacred-item-card.tsx`, `src/components/mobile/logistics-client.tsx`
+    - Fitur: Checklist posisi fisik kotak cincin, mahar, dan gaun ganti dengan toggle status instan 4 tahapan: `[Belum Diterima] -> [Pegang Kru] -> [Di Meja Akad] -> [Diserahkan ke Keluarga]`.
+  - [x] **Task 8.5: Slide-Up Quick Speed-Dial Sheet**
+    - Berkas: `src/app/(mobile)/field/[projectId]/contacts/page.tsx`, `src/components/mobile/emergency-dial-sheet.tsx`
+    - Fitur: Daftar kontak darurat (PIC Vendor Rekanan, Tim Kru WO, Keluarga Inti) dengan tombol 1-tap Call (`tel:...`) dan WhatsApp (`wa.me`).
+  - [x] **Task 8.6: Indikator Status Koneksi Offline**
     - Berkas: `src/components/mobile/offline-banner.tsx`
-    - Fitur: Floating badge warna amber muncul saat kru kehilangan sinyal di ballroom/basement: *"Mode Offline: Disimpan di Perangkat"*.
+    - Fitur: Floating banner warna amber muncul otomatis saat kru kehilangan sinyal di ballroom/basement: *"Mode Offline: Sinyal hilang. Membaca dari memori lokal"*.
 * **Definition of Done (DoD) Sprint 8:**
   1. Kru lapangan dapat membuka rundown di browser ponsel tanpa lag.
   2. Saat simulasi *Airplane Mode / Offline* di Chrome DevTools diaktifkan, halaman rundown dan kontak darurat tetap terbuka normal dari Service Worker cache.
