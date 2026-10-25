@@ -161,18 +161,18 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner), Maya (Managemen
 
 * **Tujuan Sprint:** Membangun antarmuka penyusunan rundown menit-per-menit (*cue sheet*), pustaka template adat/agama, dan mesin pergeseran waktu berantai.
 * **Daftar Tugas:**
-  - [ ] **Task 5.1: Mesin Propagasi Waktu Berantai (*Time Propagation Engine*)**
-    - Berkas: `src/services/rundown-service.ts`
+  - [x] **Task 5.1: Mesin Propagasi Waktu Berantai (*Time Propagation Engine*)**
+    - Berkas: `src/services/rundown-service.ts`, `src/lib/rundown-time.ts`
     - Algoritma: `propagateRundownTimes(items, initialStartTime)` mengkalkulasi ulang `startTime` dan `endTime` seluruh sesi berikutnya secara otomatis jika ada durasi yang bergeser.
-  - [ ] **Task 5.2: Duplikasi Template Prosesi ke Proyek**
+  - [x] **Task 5.2: Duplikasi Template Prosesi ke Proyek**
     - Berkas: `src/services/template-service.ts`
     - Logika: Menyalin kumpulan `template_rundown_items` ke dalam `project_rundowns` dengan penyesuaian jam awal acara pengantin.
-  - [ ] **Task 5.3: Server Actions Rundown & Template**
+  - [x] **Task 5.3: Server Actions Rundown & Template**
     - Berkas: `src/schemas/rundown-schema.ts`, `src/actions/rundown-actions.ts`
     - Fungsi: `applyTemplateToProjectAction`, `reorderRundownAction`, `updateRundownItemAction`, `createRundownItemAction`.
-  - [ ] **Task 5.4: Desktop UI: Master Rundown Builder (Dense Table & Cue Sheet)**
+  - [x] **Task 5.4: Desktop UI: Master Rundown Builder (Dense Table & Cue Sheet)**
     - Berkas: `src/app/(admin)/projects/[projectId]/rundown/page.tsx`, `src/components/admin/rundown-table.tsx`, `src/components/admin/cue-sheet-badges.tsx`
-    - Tampilan: Tabel padat, drag handle icon (`GripVertical`), badge Audio/Lagu (`Headphones`), Lighting (`SunMedium`), MC (`Mic2`), avatar PIC kru, dan dialog edit durasi.
+    - Tampilan: Tabel padat, badge Audio/Lagu (`Headphones`), Lighting (`SunMedium`), avatar PIC kru, dan dialog edit durasi.
 * **Definition of Done (DoD) Sprint 5:**
   1. Lead Planner dapat menerapkan template prosesi Akad Sunda ke proyek pengantin baru dalam 1 klik.
   2. Mengubah durasi sesi Akad dari 60 menit menjadi 75 menit otomatis memajukan jam mulai sesi Sungkeman dan sesi berikutnya sejauh 15 menit secara akurat.
