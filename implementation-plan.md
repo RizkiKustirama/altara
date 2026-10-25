@@ -266,14 +266,14 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
 
 * **Tujuan Sprint:** Menyediakan portal status persiapan pernikahan yang dapat dibuka pengantin langsung dari WhatsApp tanpa proses login atau instalasi aplikasi.
 * **Daftar Tugas:**
-  - [ ] **Task 9.1: Sanitasi DTO Publik & Endpoint Route Handler**
-    - Berkas: `src/types/public-portal-dto.ts`, `src/app/api/public/portal/[token]/route.ts`
+  - [x] **Task 9.1: Sanitasi DTO Publik & Endpoint Route Handler**
+    - Berkas: `src/types/public-portal-dto.ts`, `src/services/public-portal-service.ts`, `src/app/api/public/portal/[token]/route.ts`, `tests/portal/portal-sanitization.test.ts`
     - Proteksi Privasi: DTO hanya berisi nama pengantin, tanggal, countdown, venue, progress checklist, dan nama vendor berstatus `BOOKED`/`SETTLED`. Dilarang mengekspos nomor HP personal PIC dan nominal uang.
-  - [ ] **Task 9.2: Implementasi Rate Limiting Anti-Brute-Force**
-    - Berkas: `src/lib/rate-limiter.ts`
+  - [x] **Task 9.2: Implementasi Rate Limiting Anti-Brute-Force**
+    - Berkas: `src/lib/rate-limiter.ts`, `tests/portal/rate-limiter.test.ts`
     - Aturan: Maksimal 60 request per menit per alamat IP; Throttling 15 menit jika ada lebih dari 10 kali request token 404 berturut-turut.
-  - [ ] **Task 9.3: UI Portal Klien Minimalis & Elegan**
-    - Berkas: `src/app/(public)/portal/[token]/page.tsx`, `src/components/public/wedding-countdown.tsx`, `src/components/public/confirmed-vendors-grid.tsx`
+  - [x] **Task 9.3: UI Portal Klien Minimalis & Elegan**
+    - Berkas: `src/app/(public)/portal/[token]/page.tsx`, `src/components/public/wedding-countdown.tsx`, `src/components/public/preparation-progress-card.tsx`, `src/components/public/confirmed-vendors-grid.tsx`, `src/components/public/public-rundown-highlights.tsx`
     - Desain: Tipografi judul Serif elegan, kartu hitung mundur 4 kotak angka (Hari, Jam, Menit, Detik), bilah progres kesiapan acara, dan grid kartu rekanan resmi.
 * **Definition of Done (DoD) Sprint 9:**
   1. Tautan `/portal/k9xZ2A8_mQ1vY4pL7rT3w` dapat dibuka langsung tanpa meminta kata sandi.
