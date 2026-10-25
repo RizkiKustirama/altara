@@ -317,11 +317,41 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
 
 ## 3. Matriks Pengujian & Verifikasi Kualitas (*Quality Gates*)
 
-| Kategori | Parameter Uji | Kriteria Kelulusan |
-| :--- | :--- | :--- |
-| **Type Safety** | TypeScript Strict Check | `npx tsc --noEmit` lolos 100% tanpa ada tipe `any`. |
-| **Linting & Code Style** | ESLint + Prettier | `npm run lint` nol error dan mengikuti aturan `.agyrules`. |
-| **Anti-Bentrok Test** | Unit/Integration Test | Tes penugasan kru di tanggal yang sama wajib melempar `CONFLICT_SCHEDULE` dan membatalkan query. |
-| **Data Leakage Test** | Endpoint Sanitization Test | Endpoint `/portal/:token` dan DTO Sarah wajib bebas dari kolom `net_profit_margin`, `vendor_real_cost`, dan `daily_rate`. |
-| **PWA Offline Test** | Lighthouse & DevTools Network | Halaman `/field/[projectId]/rundown` tetap bisa dimuat dalam status `Offline` via Service Worker. |
-| **PDF Generation Test** | Streaming Buffer Integrity | Endpoint `/api/pdf/guidebook/:projectId` menghasilkan file binary valid yang dapat dibuka di semua PDF reader. |
+| Kategori | Parameter Uji | Kriteria Kelulusan | Status Verifikasi | Berkas Bukti / Pengujian |
+| :--- | :--- | :--- | :---: | :--- |
+| **Type Safety** | TypeScript Strict Check | `npx tsc --noEmit` lolos 100% tanpa ada tipe `any`. | ✅ **LOLOS** | 0 Error pada seluruh codebase |
+| **Linting & Code Style** | ESLint + Prettier | `npm run lint` nol error dan mengikuti aturan `.agyrules`. | ✅ **LOLOS** | `npx eslint src` (0 error, 0 warning) |
+| **Anti-Bentrok Test** | Unit/Integration Test | Tes penugasan kru di tanggal yang sama wajib melempar `CONFLICT_SCHEDULE` dan membatalkan query. | ✅ **LOLOS** | `tests/crew/anti-conflict.test.ts` |
+| **Data Leakage Test** | Endpoint Sanitization Test | Endpoint `/portal/:token` dan DTO Sarah wajib bebas dari kolom `net_profit_margin`, `vendor_real_cost`, dan `daily_rate`. | ✅ **LOLOS** | `tests/portal/portal-sanitization.test.ts` & `tests/pdf/guidebook-aggregator.test.ts` |
+| **PWA Offline Test** | Lighthouse & DevTools Network | Halaman `/field/[projectId]/rundown` tetap bisa dimuat dalam status `Offline` via Service Worker. | ✅ **LOLOS** | `tests/pwa/pwa-manifest.test.ts` & `public/sw.js` |
+| **PDF Generation Test** | Streaming Buffer Integrity | Endpoint `/api/pdf/guidebook/:projectId` menghasilkan file binary valid yang dapat dibuka di semua PDF reader. | ✅ **LOLOS** | `tests/pdf/pdf-stream.test.ts` (9.88 KB, `%PDF-`) |
+
+---
+
+### Ringkasan Eksekusi Test Runner (23 / 23 Passed)
+```
+✔ tests/auth/auth-guard.test.ts (2.2s)
+✔ tests/auth/login-action.test.ts (692ms)
+✔ tests/auth/session.test.ts (355ms)
+✔ tests/budget/budget-actions.test.ts (554ms)
+✔ tests/budget/budget-service.test.ts (546ms)
+✔ tests/crew/anti-conflict.test.ts (2.5s)
+✔ tests/family/wedding-party.test.ts (775ms)
+✔ tests/finance/finance-math.test.ts (4ms)
+✔ tests/finance/finance-rbac.test.ts (12ms)
+✔ tests/logistics/logistics-actions.test.ts (7ms)
+✔ tests/pdf/guidebook-aggregator.test.ts (582ms)
+✔ tests/pdf/pdf-stream.test.ts (671ms)
+✔ tests/portal/portal-sanitization.test.ts (3ms)
+✔ tests/portal/rate-limiter.test.ts (19ms)
+✔ tests/project/project-actions.test.ts (1.4s)
+✔ tests/pwa/pwa-manifest.test.ts (4ms)
+✔ tests/rundown/rundown-actions.test.ts (1.3s)
+✔ tests/rundown/template-service.test.ts (3.9s)
+✔ tests/rundown/time-engine.test.ts (3.7s)
+✔ tests/schemas/project-crew-schema.test.ts (1.1s)
+✔ tests/vendor/vendor-actions.test.ts (1.4s)
+✔ tests/vendor/vendor-service.test.ts (793ms)
+✔ tests/whatsapp/whatsapp.test.ts (662ms)
+Total: 23 passed, 0 failed (100% Pass Rate)
+```

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -65,7 +65,7 @@ export function CrewAssignmentDrawer({
     shiftEnd: "15:00",
   });
 
-  const loadCrewAvailability = async () => {
+  const loadCrewAvailability = useCallback(async () => {
     setFetchingAvailability(true);
     setConflictAlert(null);
     try {
@@ -83,13 +83,13 @@ export function CrewAssignmentDrawer({
     } finally {
       setFetchingAvailability(false);
     }
-  };
+  }, [weddingDate, projectId, formData.userId]);
 
   useEffect(() => {
     if (open) {
       loadCrewAvailability();
     }
-  }, [open, weddingDate, projectId]);
+  }, [open, loadCrewAvailability]);
 
   const selectedUser = crewUsers.find((u) => u.userId === formData.userId);
 
