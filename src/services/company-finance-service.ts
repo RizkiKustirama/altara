@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { projects } from "@/db/schema/projects";
 import { vendorInvoices } from "@/db/schema/operational-budgets";
+import { projectVendors } from "@/db/schema/vendors";
 import { crewPayouts } from "@/db/schema/company-finances";
 import {
   calculateProjectProfitability,
@@ -8,7 +9,7 @@ import {
   type ProfitabilityResult,
   type CompanyAggregatesResult,
 } from "@/lib/finance-math";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 export interface ProjectExecutiveFinanceDTO extends ProfitabilityResult {
   projectId: string;
@@ -44,10 +45,14 @@ export async function getCompanyExecutiveFinancials(): Promise<ExecutiveFinancia
   // 2. Fetch all vendor invoices
   const allInvoices = await db
     .select({
-      projectId: vendorInvoices.projectId,
+      projectId: projectVendors.projectId,
       totalAmount: vendorInvoices.totalAmount,
     })
-    .from(vendorInvoices);
+    .from(vendorInvoices)
+    .innerJoin(
+      projectVendors,
+      eq(vendorInvoices.projectVendorId, projectVendors.id)
+    );
 
   // 3. Fetch all crew payouts
   const allPayouts = await db

@@ -3,26 +3,31 @@ import assert from "node:assert/strict";
 import { assertRole } from "../../src/lib/auth-guard";
 import {
   BatchCrewPayoutSchema,
-  RecordCrewPayoutSchema,
 } from "../../src/schemas/finance-schema";
 
 test("🧪 Testing Tier 2A vs Tier 2B RBAC Guards & Finance Contracts...", () => {
   const ownerSession = {
     userId: "11111111-1111-1111-1111-111111111111",
     email: "dimas@altara.id",
+    fullName: "Dimas Suryo",
     role: "OWNER" as const,
+    expiresAt: Date.now() + 3600000,
   };
 
   const managementSession = {
     userId: "22222222-2222-2222-2222-222222222222",
     email: "maya@altara.id",
+    fullName: "Maya Kartika",
     role: "MANAGEMENT" as const,
+    expiresAt: Date.now() + 3600000,
   };
 
   const crewSession = {
     userId: "33333333-3333-3333-3333-333333333333",
     email: "rian@altara.id",
+    fullName: "Rian Hidayat",
     role: "CREW" as const,
+    expiresAt: Date.now() + 3600000,
   };
 
   // 1. Tier 2A (Batch Honor Kru): Both OWNER and MANAGEMENT allowed

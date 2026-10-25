@@ -57,7 +57,7 @@ export function Sidebar({ user }: SidebarProps) {
     },
     {
       label: "Dapur Finansial",
-      href: "/finances",
+      href: "/finance/margins",
       icon: DollarSign,
       roles: ["OWNER"], // Tier 2B: Eksklusif Dimas (Owner)
     },
