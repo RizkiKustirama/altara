@@ -108,25 +108,26 @@ Tujuan: Menghadirkan sistem operasional inti bagi Dimas (Owner) dan Sarah (Plann
 ### Sprint 3: Manajemen Proyek, Skuad & Mesin Anti-Bentrok Penjadwalan Kru
 
 * **Tujuan Sprint:** Menyediakan fungsionalitas pembuatan proyek pernikahan, pembuatan public token instan, serta mesin validasi anti-bentrok jadwal kru.
+* **Status:** ✅ **SELESAI (Committed & Pushed to GitHub)**
 * **Daftar Tugas:**
-  - [ ] **Task 3.1: Skema Validasi Zod Proyek & Penugasan Kru**
-    - Berkas: `src/schemas/project-schema.ts`, `src/schemas/crew-schema.ts`
-    - Skema: `CreateProjectSchema`, `UpdateProjectSchema`, `AssignCrewSchema`.
-  - [ ] **Task 3.2: Mesin Validasi Anti-Bentrok Kru (*Anti-Collision Engine*)**
-    - Berkas: `src/services/crew-service.ts`
-    - Fungsi: `assignCrewToProject(input)` memeriksa `project_crews` pada `event_date` yang sama. Jika ada bentrok, kembalikan `ActionError` berkode `CONFLICT_SCHEDULE` dengan nama proyek yang saling bertabrakan.
-  - [ ] **Task 3.3: Server Actions Proyek & Kru Skuad**
-    - Berkas: `src/actions/project-actions.ts`, `src/actions/crew-actions.ts`
-    - Fungsi: `createProjectAction` (generate `public_token` unik via `nanoid`), `assignCrewAction`, `removeCrewAction`, `getProjectOverviewAction`.
-  - [ ] **Task 3.4: Desktop UI: Multi-Event Operational Calendar Grid**
-    - Berkas: `src/app/(admin)/dashboard/page.tsx`, `src/components/admin/calendar-grid.tsx`, `src/components/admin/live-time-marker.tsx`
-    - Tampilan: Grid kalender Jumat-Minggu memantau 3-6 pernikahan, dilengkapi kartu blok proyek dan garis aksen merah muda (*Live Now Line*).
-  - [ ] **Task 3.5: Desktop UI: Slide-Over Alokasi Skuad Kru**
-    - Berkas: `src/app/(admin)/projects/[projectId]/squad/page.tsx`, `src/components/admin/crew-assignment-drawer.tsx`
-    - Fitur: Drawer geser kanan (`Sheet`) memilih staf internal/freelancer, dropdown role penugasan (Lead, LO Bride, Runner), dan penanganan feedback toast `CONFLICT_SCHEDULE`.
+  - [x] **Task 3.1: Skema Validasi Zod Proyek & Penugasan Kru**
+    - Berkas: `src/schemas/project-schema.ts`, `src/schemas/crew-schema.ts`, `tests/schemas/project-crew-schema.test.ts`
+    - Commit: `06d97c8` (`feat(schema): implement Zod validation schemas for projects and crew assignments (Task 3.1)`)
+  - [x] **Task 3.2: Mesin Validasi Anti-Bentrok Kru (*Anti-Collision Engine*)**
+    - Berkas: `src/services/crew-service.ts`, `tests/crew/anti-conflict.test.ts`
+    - Commit: `5c8b008` (`feat(crew): implement anti-collision engine and crew assignment service (Task 3.2)`)
+  - [x] **Task 3.3: Server Actions Proyek & Kru Skuad**
+    - Berkas: `src/actions/project-actions.ts`, `src/actions/crew-actions.ts`, `tests/project/project-actions.test.ts`
+    - Commit: `869205b` (`feat(actions): implement project and crew Server Actions with RBAC protection (Task 3.3)`)
+  - [x] **Task 3.4: Desktop UI: Multi-Event Operational Calendar Grid**
+    - Berkas: `src/components/admin/sidebar.tsx`, `src/components/admin/top-bar.tsx`, `src/app/(admin)/layout.tsx`, `src/app/(admin)/dashboard/page.tsx`, `src/components/admin/calendar-grid.tsx`, `src/components/admin/live-time-marker.tsx`
+    - Commit: `dbfe1d7` (`feat(ui): build admin layout shell and multi-event operational calendar grid (Task 3.4)`)
+  - [x] **Task 3.5: Desktop UI: Slide-Over Alokasi Skuad Kru**
+    - Berkas: `src/app/(admin)/projects/page.tsx`, `src/app/(admin)/projects/new/page.tsx`, `src/app/(admin)/projects/[projectId]/squad/page.tsx`, `src/components/admin/project-create-form.tsx`, `src/components/admin/crew-assignment-drawer.tsx`, `src/components/admin/crew-list-table.tsx`
+    - Commit: `4515eee` (`feat(ui): implement project registration form and squad allocation slide-over drawer (Task 3.5)`)
 * **Definition of Done (DoD) Sprint 3:**
-  1. Pembuatan proyek baru otomatis men-generate `public_token` unik.
-  2. Saat Rian ditugaskan di Pernikahan A pada 24 Oktober 2026, lalu dicoba ditugaskan di Pernikahan B pada tanggal yang sama, sistem langsung memblokir dan menampilkan toast: *"Rian sudah terjadwal bertugas di Pernikahan A pada tanggal 2026-10-24"*.
+  1. Pembuatan proyek baru otomatis men-generate `public_token` 21 karakter URL-safe (`nanoid`).
+  2. Saat Rian ditugaskan di Pernikahan A pada 24 Oktober 2026, lalu dicoba ditugaskan di Pernikahan B pada tanggal yang sama, sistem langsung memblokir dan menampilkan toast error: *"Rian sudah terjadwal bertugas di Pernikahan A pada tanggal 2026-10-24"*.
   3. Database menolak via constraint unik jika query langsung dicoba bypass.
 
 ---
