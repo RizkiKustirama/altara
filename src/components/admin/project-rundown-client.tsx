@@ -21,6 +21,7 @@ import {
   Users,
   Building2,
   Clock,
+  Wallet,
   Sparkles,
   FastForward,
   Plus,
@@ -245,6 +246,17 @@ export function ProjectRundownClient({
             <Clock className="h-3.5 w-3.5" />
             <span>Susunan Acara ({items.length})</span>
           </Button>
+
+          <Link href={`/projects/${project.id}/budget`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground gap-1.5"
+            >
+              <Wallet className="h-3.5 w-3.5" />
+              <span>Bujet Operasional</span>
+            </Button>
+          </Link>
         </div>
       </Card>
 

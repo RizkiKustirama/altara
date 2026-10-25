@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Building,
   Clock,
+  Wallet,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { id as localeId } from "date-fns/locale";
@@ -165,6 +166,17 @@ export function ProjectVendorsClient({
             >
               <Clock className="h-3.5 w-3.5" />
               <span>Susunan Acara</span>
+            </Button>
+          </Link>
+
+          <Link href={`/projects/${project.id}/budget`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground gap-1.5"
+            >
+              <Wallet className="h-3.5 w-3.5" />
+              <span>Bujet Operasional</span>
             </Button>
           </Link>
         </div>
