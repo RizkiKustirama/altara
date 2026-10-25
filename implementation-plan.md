@@ -285,26 +285,29 @@ Tujuan: Memberikan sarana mobilitas bagi Rian (Kru) di venue hari-H secara offli
 ### Sprint 10: Tier 2A Pencairan Honor Kru & Tier 2B Keuangan Dapur Bisnis (Owner Exclusive)
 
 * **Tujuan Sprint:** Mengamankan dapur bisnis agensi, kalkulasi margin laba bersih/kotor proyek, serta otomasi perhitungan pencairan honor harian puluhan kru lapangan oleh Manajemen (Maya) dan Owner (Dimas).
+* **Status:** ✅ **SELESAI (Committed & Pushed to GitHub)**
 * **Daftar Tugas:**
-  - [ ] **Task 10.1: Skema Drizzle Tier 2A & 2B Keuangan Internal (Migrasi DB)**
-    - Berkas: `src/db/schema/company-finances.ts`
+  - [x] **Task 10.1: Skema Drizzle Tier 2A & 2B Keuangan Internal (Migrasi DB)**
+    - Berkas: `src/db/schema/company-finances.ts`, `src/lib/finance-math.ts`, `tests/finance/finance-math.test.ts`
     - Tabel: `company_finances` (1:1 dengan `projects`) dan `crew_payouts`.
-  - [ ] **Task 10.2: Enforce RBAC Guard Tier 2A vs Tier 2B**
-    - Berkas: `src/services/finance-service.ts`, `src/actions/finance-actions.ts`
+  - [x] **Task 10.2: Enforce RBAC Guard Tier 2A vs Tier 2B**
+    - Berkas: `src/lib/auth-guard.ts`, `src/schemas/finance-schema.ts`, `src/actions/finance-actions.ts`, `tests/finance/finance-rbac.test.ts`
     - Guard Tier 2A (Batch Honor Kru): Diizinkan untuk `OWNER` dan `MANAGEMENT`.
     - Guard Tier 2B (Net Profit Margin & Dividen): Eksklusif `OWNER` (Dimas). Upaya akses oleh Maya atau Sarah/Rian langsung ditolak (`403 FORBIDDEN`).
-  - [ ] **Task 10.3: Logika Kalkulator Batch Payout Honor Kru Mingguan (Tier 2A)**
+  - [x] **Task 10.3: Logika Kalkulator Batch Payout Honor Kru Mingguan (Tier 2A)**
+    - Berkas: `src/services/payout-service.ts`
     - Formula: $\text{payout} = \text{session\_count} \times \text{daily\_rate}$.
-    - Fitur: Fungsi `executeBatchCrewPayoutAction(projectId, payouts)` mencairkan honor puluhan staf/freelancer secara serentak setiap Senin pagi oleh Maya.
-  - [ ] **Task 10.4: Logika Komputasi Profit & Margin Bisnis (Tier 2B)**
+    - Fitur: Fungsi `executeBatchCrewPayoutAction(payoutIds)` mencairkan honor puluhan staf/freelancer secara serentak setiap Senin pagi oleh Maya atau Dimas.
+  - [x] **Task 10.4: Logika Komputasi Profit & Margin Bisnis (Tier 2B)**
+    - Berkas: `src/services/company-finance-service.ts`
     - Formula:
       $$\text{gross\_profit} = \text{gross\_contract\_price} - \text{vendor\_real\_cost} - \text{crew\_total\_expense}$$
       $$\text{net\_profit\_margin} = \left(\frac{\text{gross\_profit}}{\text{gross\_contract\_price}}\right) \times 100\%$$
-  - [ ] **Task 10.5: Desktop UI: Rekapitulasi Honor Kru & Dasbor Eksekutif Margin Bisnis**
-    - Berkas: `src/app/(admin)/payouts/page.tsx`, `src/app/(owner-only)/finance/margins/page.tsx`, `src/components/admin/profit-metric-cards.tsx`, `src/components/admin/batch-payout-table.tsx`
+  - [x] **Task 10.5: Desktop UI: Rekapitulasi Honor Kru & Dasbor Eksekutif Margin Bisnis**
+    - Berkas: `src/app/(admin)/payouts/page.tsx`, `src/app/(admin)/finance/margins/page.tsx`, `src/components/admin/batch-payout-table.tsx`, `src/components/admin/record-payout-dialog.tsx`, `src/components/admin/executive-margin-card.tsx`, `src/components/admin/project-profitability-table.tsx`, `src/components/admin/sidebar.tsx`
     - Tampilan:
-      - Halaman Payout (Maya & Dimas): Tabel multi-select checkbox untuk pencairan honor kru massal.
-      - Halaman Eksekutif (Dimas Only): Kartu ringkasan omzet bruto, total modal vendor riil, total pengeluaran honor kru, net margin persentase, dan penarikan dividen.
+      - Halaman Payout (Maya & Dimas): Tabel multi-select checkbox untuk pencairan honor kru massal dengan sum total realtime.
+      - Halaman Eksekutif (Dimas Only): Kartu ringkasan omzet bruto, total modal vendor riil, total pengeluaran honor kru, net margin persentase, dan rincian profit per proyek.
 * **Definition of Done (DoD) Sprint 10:**
   1. Maya dapat mencentang seluruh kru yang bertugas di akhir pekan dan menekan tombol *"Cairkan Honor Terpilih"* pada hari Senin pagi.
   2. Dimas dapat melihat margin keuntungan bersih tiap proyek secara privat tanpa bisa diakses Maya atau kru.
